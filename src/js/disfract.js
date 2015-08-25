@@ -21,9 +21,82 @@
 
 (function(disfract)
 {
+	function _switchDrawingState(button)
+	{
+		if (neo3d.isDrawing())
+		{
+			neo3d.stopDrawing();
+			button.value = "Start";
+		}
+		else
+		{
+			neo3d.startDrawing();
+			button.value = "Stop";
+		}
+	}
+
 	disfract.main = function()
 	{
-		//TODO: write main function
-		alert("main");
+		var switchDrawingButton = document.getElementById("switchDrawing");
+		var fpsSpan = document.getElementById("fps");
+
+		var showFPS = function()
+		{
+			fpsSpan.innerHTML = neo3d.getFPS().toFixed(3) + " fps";
+			setTimeout(showFPS, 1000);
+		};
+		showFPS();
+
+		var rdr = {
+			onInitContext: function(gl)
+			{
+				//TODO: onInitContext
+				gl.clearColor(0, 0, 0, 1);
+				gl.enable(gl.DEPTH_TEST);
+
+				var vtxShaderSrc =
+					"attribute vec3 aVtxPosition;\n" +
+					"uniform mat4 uPMVMatrix;\n" +
+					"void main() {\n" +
+					"gl_Position = uPMVMatrix * vec4(aVtxPosition, 1.0);\n}";
+
+				var fragShaderSrc =
+					"precision mediump float;\n" +
+					"void main() {\n" +
+					"gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n}";
+
+				var prog = neo3d.loadProgram(gl, vtxShaderSrc, fragShaderSrc);
+				if (prog)
+				{
+					prog.vtxPosition = gl.getAttribLocation(prog, "aVtxPosition");
+					prog.pmvMatrix = gl.getUniformLocation(prog, "uPMVMatrix");
+				}
+
+				this.prog = prog;
+			},
+
+			onSurfaceResized: function(gl, width, height)
+			{
+				gl.viewport(0, 0, width, height);
+			},
+
+			onDrawFrame: function(gl)
+			{
+				//TODO: onDrawFrame
+				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			}
+		};
+
+		var rdrSurf = neo3d.createRenderingSurface("drawSurf", rdr);
+		if (rdrSurf)
+		{
+			neo3d.startDrawing();
+			switchDrawingButton.addEventListener("click", function()
+			{
+				_switchDrawingState(switchDrawingButton);
+			});
+		}
+		else
+			alert("WebGL is not available");
 	};
 })(window.disfract = window.disfract || {});

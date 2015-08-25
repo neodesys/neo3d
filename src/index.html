@@ -23,6 +23,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<!--include-neo3d-start-->
+		<script src="js/neo3d/neo3d.js"></script>
 		<!--include-neo3d-end-->
 		<!--include-disfract-start-->
 		<script src="js/disfract.js"></script>
@@ -32,6 +33,12 @@
 		</script>
 	</head>
 	<body>
-		<div>TODO: write content</div>
+		<h1>Disfract</h1>
+		<hr>
+		<div style="margin-bottom: 20px;">
+			<input type="button" value="Stop" id="switchDrawing" style="cursor: pointer;">&nbsp;<span id="fps"></span>
+		</div>
+		<canvas id="drawSurf" width="320" height="240"></canvas>
+		<hr>
 	</body>
 </html>
