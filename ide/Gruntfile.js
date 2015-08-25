@@ -1,3 +1,24 @@
+/**
+ * Disfract
+ *
+ * Copyright (C) 2015, Loïc Le Page
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+"use strict";
+
 module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-copy");
 	grunt.loadNpmTasks("grunt-contrib-concat");
@@ -10,7 +31,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON("ide/package.json"),
 
 		neo3dIncludes: [],
-		mainIncludes: [],
+		disfractIncludes: [],
 
 		copy: {
 			index: {
@@ -37,13 +58,13 @@ module.exports = function(grunt) {
 								if (bFound)
 								{
 									grunt.config(incName, includes);
-									return "<script src=\"" + type + ".js\"></script>";
+									return "<script src=\"" + type + ".min.js\"></script>";
 								}
 								else
-									return "<!-- no source script for " + type + ".js -->";
+									return "<!-- no source script for " + type + ".min.js -->";
 							}
 							else
-								return "<!-- no source script for " + type + ".js -->";
+								return "<!-- no source script for " + type + ".min.js -->";
 						});
 					}
 				}
@@ -66,21 +87,108 @@ module.exports = function(grunt) {
 				dest: "build/neo3d.js"
 			},
 
-			main: {
+			disfract: {
 				nonull: true,
-				src: "<%= mainIncludes %>",
-				dest: "build/main.js"
+				src: "<%= disfractIncludes %>",
+				dest: "build/disfract.js"
 			}
 		},
 
 		clean: {
+			unused: {
+				src: ["build/neo3d.js", "build/neo3d.js.map", "build/disfract.js", "build/disfract.js.map"]
+			},
+
 			build: {
 				src: "build"
+			}
+		},
+
+		jshint: {
+			options: {
+				reporter: require("jshint-stylish"),
+				browser: true,
+				devel: true,
+				globalstrict: true,
+				eqeqeq: true,
+				undef: true,
+				unused: true,
+				globals: {
+					ImageData: true
+				}
+			},
+
+			beforeConcat: ["src/**/*.js"],
+			afterConcat: ["build/neo3d.js", "build/disfract.js"],
+
+			gruntfile: {
+				options: {
+					browser: false,
+					devel: false,
+					node: true
+				},
+
+				src: ["ide/Gruntfile.js"]
+			}
+		},
+
+		uglify: {
+			options: {
+				sourceMap: true,
+				sourceMapIncludeSources: true,
+				preserveComments: "some",
+				screwIE8: true,
+				compress: {
+					sequences: true,
+					properties: true,
+					dead_code: true,
+					drop_debugger: true,
+					conditionals: true,
+					evaluate: true,
+					booleans: true,
+					loops: true,
+					unused: true,
+					hoist_funs: true,
+					if_return: true,
+					join_vars: true,
+					cascade: true
+				}
+			},
+
+			neo3d: {
+				options: {
+					sourceMapIn: "build/neo3d.js.map"
+				},
+
+				nonull: true,
+				src: "build/neo3d.js",
+				dest: "build/neo3d.min.js"
+			},
+
+			disfract: {
+				options: {
+					sourceMapIn: "build/disfract.js.map"
+				},
+
+				nonull: true,
+				src: "build/disfract.js",
+				dest: "build/disfract.min.js"
 			}
 		}
 	});
 
-	grunt.registerTask("build", ["copy:index", "concat:neo3d", "concat:main"]);
+	grunt.registerTask("build", [
+		"jshint:gruntfile",
+		"copy:index",
+		"jshint:beforeConcat",
+		"concat:neo3d",
+		"concat:disfract",
+		"jshint:afterConcat",
+		"uglify:neo3d",
+		"uglify:disfract",
+		"clean:unused"
+	]);
+
 	grunt.registerTask("rebuild", ["clean:build", "build"]);
 	grunt.registerTask("default", ["rebuild"]);
 };
