@@ -1,0 +1,17 @@
+{
+	"name": "Disfract",
+	"license": "GPL-3.0",
+	"author": "Copyright (C) 2015, Loïc Le Page",
+	"private": true,
+	"devDependencies": {
+		"grunt": ">=0.4",
+		"grunt-contrib-copy": ">=0.8",
+		"grunt-contrib-concat": ">=0.5",
+		"grunt-contrib-clean": ">=0.6",
+		"grunt-contrib-jshint": ">=0.11",
+		"grunt-contrib-uglify": ">=0.9"
+	},
+	"engines": {
+		"node": ">=0.10"
+	}
+}

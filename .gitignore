@@ -1,0 +1,8 @@
+ide/nbproject/private/
+ide/node_modules/
+ide/npm*
+
+build/
+
+*.swp
+*~
