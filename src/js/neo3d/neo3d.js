@@ -376,8 +376,8 @@
 	{
 		if ((gl instanceof WebGLRenderingContext) &&
 			(((data instanceof HTMLImageElement) && data.complete) ||
-			(data instanceof ImageData) ||
-			(data instanceof HTMLCanvasElement)))
+			 (data instanceof ImageData) ||
+			 (data instanceof HTMLCanvasElement)))
 		{
 			var tex = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -435,7 +435,7 @@
 	{
 		if ((gl instanceof WebGLRenderingContext) &&
 			((data instanceof ArrayBuffer) ||
-			(data instanceof ArrayBufferView)))
+			 (data instanceof ArrayBufferView)))
 			return _loadBuffer(gl, gl.ARRAY_BUFFER, data, gl.GL_STATIC_DRAW);
 		else
 			return null;
@@ -445,7 +445,7 @@
 	{
 		if ((gl instanceof WebGLRenderingContext) &&
 			((data instanceof ArrayBuffer) ||
-			(data instanceof ArrayBufferView)))
+			 (data instanceof ArrayBufferView)))
 			return _loadBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, data, gl.GL_STATIC_DRAW);
 		else
 			return null;

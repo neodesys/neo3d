@@ -24,7 +24,8 @@
  */
 neo3d.Vec2 = function()
 {
-	this.buffer = neo3d.Vec2.createBuffer(1);
+	//Always initialized to 0
+	this.buffer = new Float32Array(2);
 };
 
 neo3d.Vec2.prototype.setFromValues = function(x, y)
@@ -61,6 +62,11 @@ neo3d.Vec2.prototype.copy = function(v2)
 	this.buffer[1] = v2.buffer[1];
 
 	return this;
+};
+
+neo3d.Vec2.prototype.isNull = function()
+{
+	return neo3d.Vec2.bufferIsNull(this.buffer, 0);
 };
 
 neo3d.Vec2.prototype.equals = function(v2)
@@ -113,6 +119,18 @@ neo3d.Vec2.prototype.addScaled = function(v2A, scale, v2B)
 neo3d.Vec2.prototype.addScaledInPlace = function(scale, v2)
 {
 	neo3d.Vec2.bufferAddScaledInPlace(this.buffer, 0, scale, v2.buffer, 0);
+	return this;
+};
+
+neo3d.Vec2.prototype.negate = function(v2)
+{
+	neo3d.Vec2.bufferNegate(this.buffer, 0, v2.buffer, 0);
+	return this;
+};
+
+neo3d.Vec2.prototype.negateInPlace = function()
+{
+	neo3d.Vec2.bufferNegate(this.buffer, 0, this.buffer, 0);
 	return this;
 };
 
@@ -198,7 +216,10 @@ neo3d.Vec2.prototype.catmullRom = function(p0, p1, t, p2, p3)
 	return this;
 };
 
+//MUST be considered as constants
 neo3d.Vec2.NB_COMPONENTS = 2;
+neo3d.Vec2.I = new neo3d.Vec2().setFromValues(1.0, 0.0);
+neo3d.Vec2.J = new neo3d.Vec2().setFromValues(0.0, 1.0);
 
 neo3d.Vec2.createBuffer = function(nbElems)
 {
@@ -206,15 +227,20 @@ neo3d.Vec2.createBuffer = function(nbElems)
 	return new Float32Array(2 * nbElems);
 };
 
-neo3d.Vec2.I = new neo3d.Vec2().setFromValues(1.0, 0.0);
-
-neo3d.Vec2.J = new neo3d.Vec2().setFromValues(0.0, 1.0);
-
-neo3d.Vec2.bufferEquals = function(bufferA, offsetA, bufferB, offsetB)
+neo3d.Vec2.bufferIsNull = function(inBuffer, inOffset)
 {
-	if ((bufferA === bufferB) ||
-		((neo3d.abs(bufferB[offsetB] - bufferA[offsetA]) < neo3d.EPSILON) &&
-		(neo3d.abs(bufferB[offsetB + 1] - bufferA[offsetA + 1]) < neo3d.EPSILON)))
+	if ((neo3d.abs(inBuffer[inOffset]) < neo3d.EPSILON) &&
+		(neo3d.abs(inBuffer[inOffset + 1]) < neo3d.EPSILON))
+		return true;
+	else
+		return false;
+};
+
+neo3d.Vec2.bufferEquals = function(inBufferA, inOffsetA, inBufferB, inOffsetB)
+{
+	if (((inBufferA === inBufferB) && (inOffsetA === inOffsetB)) ||
+		((neo3d.abs(inBufferB[inOffsetB] - inBufferA[inOffsetA]) < neo3d.EPSILON) &&
+		 (neo3d.abs(inBufferB[inOffsetB + 1] - inBufferA[inOffsetA + 1]) < neo3d.EPSILON)))
 		return true;
 	else
 		return false;
@@ -280,6 +306,14 @@ neo3d.Vec2.bufferAddScaledInPlace = function(outBuffer, outOffset, scale, inBuff
 {
 	outBuffer[outOffset] += scale * inBuffer[inOffset];
 	outBuffer[outOffset + 1] += scale * inBuffer[inOffset + 1];
+
+	return outBuffer;
+};
+
+neo3d.Vec2.bufferNegate = function(outBuffer, outOffset, inBuffer, inOffset)
+{
+	outBuffer[outOffset] = -inBuffer[inOffset];
+	outBuffer[outOffset + 1] = -inBuffer[inOffset + 1];
 
 	return outBuffer;
 };
@@ -372,8 +406,16 @@ neo3d.Vec2.bufferShortestAngle = function(inBufferA, inOffsetA, inBufferB, inOff
 
 neo3d.Vec2.bufferArePerpendicular = function(inBufferA, inOffsetA, inBufferB, inOffsetB)
 {
-	if (neo3d.abs(inBufferA[inOffsetA] * inBufferB[inOffsetB] +
-		inBufferA[inOffsetA + 1] * inBufferB[inOffsetB + 1]) < neo3d.EPSILON2)
+	var xa = inBufferA[inOffsetA],
+		ya = inBufferA[inOffsetA + 1],
+		xb = inBufferB[inOffsetB],
+		yb = inBufferB[inOffsetB + 1];
+
+	if (((neo3d.abs(xa) >= neo3d.EPSILON) ||
+		 (neo3d.abs(ya) >= neo3d.EPSILON)) &&
+		((neo3d.abs(xb) >= neo3d.EPSILON) ||
+		 (neo3d.abs(yb) >= neo3d.EPSILON)) &&
+		(neo3d.abs(xa * xb + ya * yb) < neo3d.EPSILON2))
 		return true;
 	else
 		return false;
@@ -381,8 +423,16 @@ neo3d.Vec2.bufferArePerpendicular = function(inBufferA, inOffsetA, inBufferB, in
 
 neo3d.Vec2.bufferAreColinear = function(inBufferA, inOffsetA, inBufferB, inOffsetB)
 {
-	if (neo3d.abs(inBufferA[inOffsetA] * inBufferB[inOffsetB + 1] -
-		inBufferB[inOffsetB] * inBufferA[inOffsetA + 1]) < neo3d.EPSILON2)
+	var xa = inBufferA[inOffsetA],
+		ya = inBufferA[inOffsetA + 1],
+		xb = inBufferB[inOffsetB],
+		yb = inBufferB[inOffsetB + 1];
+
+	if (((neo3d.abs(xa) >= neo3d.EPSILON) ||
+		 (neo3d.abs(ya) >= neo3d.EPSILON)) &&
+		((neo3d.abs(xb) >= neo3d.EPSILON) ||
+		 (neo3d.abs(yb) >= neo3d.EPSILON)) &&
+		(neo3d.abs(xa * yb - xb * ya) < neo3d.EPSILON2))
 		return true;
 	else
 		return false;

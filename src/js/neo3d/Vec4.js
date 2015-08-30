@@ -24,7 +24,8 @@
  */
 neo3d.Vec4 = function()
 {
-	this.buffer = neo3d.Vec4.createBuffer(1);
+	//Always initialized to 0
+	this.buffer = new Float32Array(4);
 };
 
 neo3d.Vec4.prototype.setFromValues = function(x, y, z, w)
@@ -89,6 +90,11 @@ neo3d.Vec4.prototype.copy = function(v4)
 	return this;
 };
 
+neo3d.Vec4.prototype.isNull = function()
+{
+	return neo3d.Vec4.bufferIsNull(this.buffer, 0);
+};
+
 neo3d.Vec4.prototype.equals = function(v4)
 {
 	return neo3d.Vec4.bufferEquals(this.buffer, 0, v4.buffer, 0);
@@ -139,6 +145,18 @@ neo3d.Vec4.prototype.addScaled = function(v4A, scale, v4B)
 neo3d.Vec4.prototype.addScaledInPlace = function(scale, v4)
 {
 	neo3d.Vec4.bufferAddScaledInPlace(this.buffer, 0, scale, v4.buffer, 0);
+	return this;
+};
+
+neo3d.Vec4.prototype.negate = function(v4)
+{
+	neo3d.Vec4.bufferNegate(this.buffer, 0, v4.buffer, 0);
+	return this;
+};
+
+neo3d.Vec4.prototype.negateInPlace = function()
+{
+	neo3d.Vec4.bufferNegate(this.buffer, 0, this.buffer, 0);
 	return this;
 };
 
@@ -209,7 +227,12 @@ neo3d.Vec4.prototype.catmullRom = function(p0, p1, t, p2, p3)
 	return this;
 };
 
+//MUST be considered as constants
 neo3d.Vec4.NB_COMPONENTS = 4;
+neo3d.Vec4.I = new neo3d.Vec4().setFromValues(1.0, 0.0, 0.0, 0.0);
+neo3d.Vec4.J = new neo3d.Vec4().setFromValues(0.0, 1.0, 0.0, 0.0);
+neo3d.Vec4.K = new neo3d.Vec4().setFromValues(0.0, 0.0, 1.0, 0.0);
+neo3d.Vec4.L = new neo3d.Vec4().setFromValues(0.0, 0.0, 0.0, 1.0);
 
 neo3d.Vec4.createBuffer = function(nbElems)
 {
@@ -217,21 +240,24 @@ neo3d.Vec4.createBuffer = function(nbElems)
 	return new Float32Array(4 * nbElems);
 };
 
-neo3d.Vec4.I = new neo3d.Vec4().setFromValues(1.0, 0.0, 0.0, 0.0);
-
-neo3d.Vec4.J = new neo3d.Vec4().setFromValues(0.0, 1.0, 0.0, 0.0);
-
-neo3d.Vec4.K = new neo3d.Vec4().setFromValues(0.0, 0.0, 1.0, 0.0);
-
-neo3d.Vec4.L = new neo3d.Vec4().setFromValues(0.0, 0.0, 0.0, 1.0);
-
-neo3d.Vec4.bufferEquals = function(bufferA, offsetA, bufferB, offsetB)
+neo3d.Vec4.bufferIsNull = function(inBuffer, inOffset)
 {
-	if ((bufferA === bufferB) ||
-		((neo3d.abs(bufferB[offsetB] - bufferA[offsetA]) < neo3d.EPSILON) &&
-		(neo3d.abs(bufferB[offsetB + 1] - bufferA[offsetA + 1]) < neo3d.EPSILON) &&
-		(neo3d.abs(bufferB[offsetB + 2] - bufferA[offsetA + 2]) < neo3d.EPSILON) &&
-		(neo3d.abs(bufferB[offsetB + 3] - bufferA[offsetA + 3]) < neo3d.EPSILON)))
+	if ((neo3d.abs(inBuffer[inOffset]) < neo3d.EPSILON) &&
+		(neo3d.abs(inBuffer[inOffset + 1]) < neo3d.EPSILON) &&
+		(neo3d.abs(inBuffer[inOffset + 2]) < neo3d.EPSILON) &&
+		(neo3d.abs(inBuffer[inOffset + 3]) < neo3d.EPSILON))
+		return true;
+	else
+		return false;
+};
+
+neo3d.Vec4.bufferEquals = function(inBufferA, inOffsetA, inBufferB, inOffsetB)
+{
+	if (((inBufferA === inBufferB) && (inOffsetA === inOffsetB)) ||
+		((neo3d.abs(inBufferB[inOffsetB] - inBufferA[inOffsetA]) < neo3d.EPSILON) &&
+		 (neo3d.abs(inBufferB[inOffsetB + 1] - inBufferA[inOffsetA + 1]) < neo3d.EPSILON) &&
+		 (neo3d.abs(inBufferB[inOffsetB + 2] - inBufferA[inOffsetA + 2]) < neo3d.EPSILON) &&
+		 (neo3d.abs(inBufferB[inOffsetB + 3] - inBufferA[inOffsetA + 3]) < neo3d.EPSILON)))
 		return true;
 	else
 		return false;
@@ -313,6 +339,16 @@ neo3d.Vec4.bufferAddScaledInPlace = function(outBuffer, outOffset, scale, inBuff
 	outBuffer[outOffset + 1] += scale * inBuffer[inOffset + 1];
 	outBuffer[outOffset + 2] += scale * inBuffer[inOffset + 2];
 	outBuffer[outOffset + 3] += scale * inBuffer[inOffset + 3];
+
+	return outBuffer;
+};
+
+neo3d.Vec4.bufferNegate = function(outBuffer, outOffset, inBuffer, inOffset)
+{
+	outBuffer[outOffset] = -inBuffer[inOffset];
+	outBuffer[outOffset + 1] = -inBuffer[inOffset + 1];
+	outBuffer[outOffset + 2] = -inBuffer[inOffset + 2];
+	outBuffer[outOffset + 3] = -inBuffer[inOffset + 3];
 
 	return outBuffer;
 };
