@@ -29,6 +29,8 @@
 
 	neo3d.HALF_PI = 0.5 * neo3d.PI;
 
+	neo3d.TWO_PI = 2.0 * neo3d.PI;
+
 	neo3d.RAD2DEG = 180.0 / neo3d.PI;
 
 	neo3d.DEG2RAD = neo3d.PI / 180.0;
@@ -37,6 +39,18 @@
 
 	neo3d.sqrt = Math.sqrt;
 
+	neo3d.cos = Math.cos;
+
 	neo3d.acos = Math.acos;
+
+	neo3d.sin = Math.sin;
+
+	neo3d.atan2 = Math.atan2;
+
+	neo3d.log = Math.log;
+
+	neo3d.exp = Math.exp;
+
+	neo3d.pow = Math.pow;
 
 })(window.neo3d = window.neo3d || {});
