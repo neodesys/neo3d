@@ -149,6 +149,12 @@ neo3d.Mat4.prototype.setRotationFromQuat = function(q)
 	return this;
 };
 
+neo3d.Mat4.prototype.setRotScaleFromMat3 = function(m3)
+{
+	neo3d.Mat4.bufferSetRotScaleFromMat3(this.buffer, 0, m3.buffer, 0);
+	return this;
+};
+
 neo3d.Mat4.prototype.setFromTRSTransfo = function(transV3, rotQuat, scaleV3)
 {
 	//rotQuat quaternion must be a unit quaternion
@@ -365,6 +371,26 @@ neo3d.Mat4.bufferSetRotationFromQuat = function(outBuffer, outOffset, inQBuffer,
 	outBuffer[outOffset + 8] = y2w + x2z;
 	outBuffer[outOffset + 9] = y2z - x2w;
 	outBuffer[outOffset + 10] = 1.0 - x2x - y2y;
+	outBuffer[outOffset + 11] = 0.0;
+
+	return outBuffer;
+};
+
+neo3d.Mat4.bufferSetRotScaleFromMat3 = function(outBuffer, outOffset, inMat3Buffer, inMat3Offset)
+{
+	outBuffer[outOffset] = inMat3Buffer[inMat3Offset];
+	outBuffer[outOffset + 1] = inMat3Buffer[inMat3Offset + 1];
+	outBuffer[outOffset + 2] = inMat3Buffer[inMat3Offset + 2];
+	outBuffer[outOffset + 3] = 0.0;
+
+	outBuffer[outOffset + 4] = inMat3Buffer[inMat3Offset + 3];
+	outBuffer[outOffset + 5] = inMat3Buffer[inMat3Offset + 4];
+	outBuffer[outOffset + 6] = inMat3Buffer[inMat3Offset + 5];
+	outBuffer[outOffset + 7] = 0.0;
+
+	outBuffer[outOffset + 8] = inMat3Buffer[inMat3Offset + 6];
+	outBuffer[outOffset + 9] = inMat3Buffer[inMat3Offset + 7];
+	outBuffer[outOffset + 10] = inMat3Buffer[inMat3Offset + 8];
 	outBuffer[outOffset + 11] = 0.0;
 
 	return outBuffer;
