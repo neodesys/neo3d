@@ -45,6 +45,8 @@
 
 	neo3d.sin = Math.sin;
 
+	neo3d.tan = Math.tan;
+
 	neo3d.atan2 = Math.atan2;
 
 	neo3d.log = Math.log;
