@@ -115,21 +115,22 @@ module.exports = function(grunt) {
 				unused: true,
 				globals: {
 					neo3d: true,
-					ImageData: true
+					ImageData: true,
+					QUnit: true
 				}
 			},
 
-			beforeConcat: ["src/**/*.js"],
+			beforeConcat: ["src/**/*.js", "test/**/*.js"],
 			afterConcat: ["build/neo3d.js", "build/disfract.js"],
 
-			gruntfile: {
+			configFiles: {
 				options: {
 					browser: false,
 					devel: false,
 					node: true
 				},
 
-				src: ["ide/Gruntfile.js"]
+				src: ["ide/Gruntfile.js", "ide/karma.conf.js"]
 			}
 		},
 
@@ -179,7 +180,7 @@ module.exports = function(grunt) {
 	});
 
 	grunt.registerTask("build", [
-		"jshint:gruntfile",
+		"jshint:configFiles",
 		"copy:index",
 		"jshint:beforeConcat",
 		"concat:neo3d",
