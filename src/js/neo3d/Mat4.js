@@ -20,7 +20,7 @@
 "use strict";
 
 /**
- * @requires neomath.js
+ * @requires Mat3.js
  */
 neo3d.Mat4 = function()
 {
@@ -200,6 +200,24 @@ neo3d.Mat4.prototype.copy = function(m4)
 	this.buffer[14] = inBuffer[14];
 	this.buffer[15] = inBuffer[15];
 
+	return this;
+};
+
+neo3d.Mat4.prototype.getTRSTransfo = function(transV3, rotQuat, scaleV3)
+{
+	neo3d.Mat4.bufferGetTRSTransfo(transV3.buffer, 0, rotQuat.buffer, 0, scaleV3.buffer, 0, this.buffer, 0);
+	return this;
+};
+
+neo3d.Mat4.prototype.normalizeTRSTransfo = function(m4)
+{
+	neo3d.Mat4.bufferNormalizeTRSTransfo(this.buffer, 0, m4.buffer, 0);
+	return this;
+};
+
+neo3d.Mat4.prototype.normalizeTRSTransfoInPlace = function()
+{
+	neo3d.Mat4.bufferNormalizeTRSTransfo(this.buffer, 0, this.buffer, 0);
 	return this;
 };
 
@@ -428,6 +446,50 @@ neo3d.Mat4.bufferSetFromTRSTransfo = function(outBuffer, outOffset, inTransVec3B
 	outBuffer[outOffset + 12] = inTransVec3Buffer[inTransVec3Offset];
 	outBuffer[outOffset + 13] = inTransVec3Buffer[inTransVec3Offset + 1];
 	outBuffer[outOffset + 14] = inTransVec3Buffer[inTransVec3Offset + 2];
+	outBuffer[outOffset + 15] = 1.0;
+
+	return outBuffer;
+};
+
+neo3d.Mat4.bufferGetTRSTransfo = function(outTransVec3Buffer, outTransVec3Offset, outRotQuatBuffer, outRotQuatOffset, outScaleVec3Buffer, outScaleVec3Offset, inMat4Buffer, inMat4Offset)
+{
+	var buffer = neo3d.Mat3._orthoNormalizeTransfo(inMat4Buffer, inMat4Offset, 4);
+
+	outScaleVec3Buffer[outScaleVec3Offset] = buffer[9];
+	outScaleVec3Buffer[outScaleVec3Offset + 1] = buffer[10];
+	outScaleVec3Buffer[outScaleVec3Offset + 2] = buffer[11];
+
+	neo3d.Quat.bufferSetFromRotationMat3(outRotQuatBuffer, outRotQuatOffset, buffer, 0);
+
+	outTransVec3Buffer[outTransVec3Offset] = inMat4Buffer[inMat4Offset + 12];
+	outTransVec3Buffer[outTransVec3Offset + 1] = inMat4Buffer[inMat4Offset + 13];
+	outTransVec3Buffer[outTransVec3Offset + 2] = inMat4Buffer[inMat4Offset + 14];
+
+	return inMat4Buffer;
+};
+
+neo3d.Mat4.bufferNormalizeTRSTransfo = function(outBuffer, outOffset, inBuffer, inOffset)
+{
+	var buffer = neo3d.Mat3._orthoNormalizeTransfo(inBuffer, inOffset, 4),
+		sx = buffer[9],
+		sy = buffer[10],
+		sz = buffer[11];
+
+	outBuffer[outOffset] = buffer[0] * sx;
+	outBuffer[outOffset + 1] = buffer[1] * sx;
+	outBuffer[outOffset + 2] = buffer[2] * sx;
+	outBuffer[outOffset + 3] = 0.0;
+
+	outBuffer[outOffset + 4] = buffer[3] * sy;
+	outBuffer[outOffset + 5] = buffer[4] * sy;
+	outBuffer[outOffset + 6] = buffer[5] * sy;
+	outBuffer[outOffset + 7] = 0.0;
+
+	outBuffer[outOffset + 8] = buffer[6] * sz;
+	outBuffer[outOffset + 9] = buffer[7] * sz;
+	outBuffer[outOffset + 10] = buffer[8] * sz;
+	outBuffer[outOffset + 11] = 0.0;
+
 	outBuffer[outOffset + 15] = 1.0;
 
 	return outBuffer;

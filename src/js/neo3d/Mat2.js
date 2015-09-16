@@ -107,6 +107,23 @@ neo3d.Mat2.prototype.copy = function(m2)
 	return this;
 };
 
+neo3d.Mat2.prototype.getRSTransfo = function(scaleV2)
+{
+	return neo3d.Mat2.bufferGetRSTransfo(scaleV2.buffer, 0, this.buffer, 0);
+};
+
+neo3d.Mat2.prototype.normalizeRSTransfo = function(m2)
+{
+	neo3d.Mat2.bufferNormalizeRSTransfo(this.buffer, 0, m2.buffer, 0);
+	return this;
+};
+
+neo3d.Mat2.prototype.normalizeRSTransfoInPlace = function()
+{
+	neo3d.Mat2.bufferNormalizeRSTransfo(this.buffer, 0, this.buffer, 0);
+	return this;
+};
+
 neo3d.Mat2.prototype.isIdentity = function()
 {
 	return neo3d.Mat2.bufferIsIdentity(this.buffer, 0);
@@ -219,6 +236,90 @@ neo3d.Mat2.bufferSetFromRSTransfo = function(outBuffer, outOffset, rotAngle, inS
 
 	outBuffer[outOffset + 2] = -sina * sy;
 	outBuffer[outOffset + 3] = cosa * sy;
+
+	return outBuffer;
+};
+
+(function()
+{
+	//It is safe to use a "statically" shared temporary buffer for
+	//_orthoNormalizeTransfo because web workers never share their global
+	//contexts, so _sharedTmpBuffer will never be accessed from different
+	//threads
+	var _sharedTmpBuffer = new Float32Array(6);
+
+	neo3d.Mat2._orthoNormalizeTransfo = function(inMatBuffer, inMatOffset, vecSize)
+	{
+		//RSTransfo 2x2 matrix is normalized using the stabilized Gram–Schmidt
+		//orthonormalization algorithm
+
+		//Normalize v0
+		var x0 = inMatBuffer[inMatOffset],
+			y0 = inMatBuffer[inMatOffset + 1],
+			n = x0 * x0 + y0 * y0;
+
+		if (n < neo3d.EPSILON2)
+			_sharedTmpBuffer[4] = x0 = y0 = 0.0;
+		else
+		{
+			_sharedTmpBuffer[4] = n = neo3d.sqrt(n);
+			n = 1.0 / n;
+			x0 *= n;
+			y0 *= n;
+		}
+
+		//Remove v1/v0 skew
+		inMatOffset += vecSize;
+		var x1 = inMatBuffer[inMatOffset],
+			y1 = inMatBuffer[inMatOffset + 1];
+
+		n = x1 * x0 + y1 * y0;
+		x1 -= n * x0;
+		y1 -= n * y0;
+
+		//Normalize v1
+		n = x1 * x1 + y1 * y1;
+		if (n < neo3d.EPSILON2)
+			_sharedTmpBuffer[5] = x1 = y1 = 0.0;
+		else
+		{
+			_sharedTmpBuffer[5] = n = neo3d.sqrt(n);
+			n = 1.0 / n;
+			x1 *= n;
+			y1 *= n;
+		}
+
+		_sharedTmpBuffer[0] = x0;
+		_sharedTmpBuffer[1] = y0;
+
+		_sharedTmpBuffer[2] = x1;
+		_sharedTmpBuffer[3] = y1;
+
+		return _sharedTmpBuffer;
+	};
+})();
+
+neo3d.Mat2.bufferGetRSTransfo = function(outScaleVec2Buffer, outScaleVec2Offset, inMat2Buffer, inMat2Offset)
+{
+	var buffer = neo3d.Mat2._orthoNormalizeTransfo(inMat2Buffer, inMat2Offset, 2);
+
+	outScaleVec2Buffer[outScaleVec2Offset] = buffer[4];
+	outScaleVec2Buffer[outScaleVec2Offset + 1] = buffer[5];
+
+	return neo3d.atan2(buffer[1], buffer[0]);
+};
+
+neo3d.Mat2.bufferNormalizeRSTransfo = function(outBuffer, outOffset, inBuffer, inOffset)
+{
+	var buffer = neo3d.Mat2._orthoNormalizeTransfo(inBuffer, inOffset, 2),
+		sx = buffer[4],
+		sy = buffer[5];
+
+	outBuffer[outOffset] = buffer[0] * sx;
+	outBuffer[outOffset + 1] = buffer[1] * sx;
+
+	outBuffer[outOffset + 2] = buffer[2] * sy;
+	outBuffer[outOffset + 3] = buffer[3] * sy;
 
 	return outBuffer;
 };
