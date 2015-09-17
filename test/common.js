@@ -19,47 +19,120 @@
 
 "use strict";
 
-QUnit.assert.bufferEqual = function(value, expected, message)
+(function()
 {
-	if (!(value instanceof Float32Array))
-	{
-		if ((value !== null) && (value !== undefined))
-			value = value.constructor.name;
+	//Unit tests epsilon needs to be more tolerant than neo3d.EPSILON because
+	//of values truncating while casting floats from double-precision to
+	//single-precision
+	var _EPSILON = 1e-5;
 
-		this.push(false, value, "Float32Array", "wrong value type");
-	}
-	else if (!(expected instanceof Float32Array))
+	function _verifyBuffers(value, expected)
 	{
-		if ((expected !== null) && (expected !== undefined))
-			expected = expected.constructor.name;
+		if (!(value instanceof Float32Array))
+		{
+			if ((value !== null) && (value !== undefined))
+				value = value.constructor.name;
 
-		this.push(false, expected, "Float32Array", "wrong expected type");
-	}
-	else
-	{
+			QUnit.assert.push(false, value, "Float32Array", "wrong value type");
+			return false;
+		}
+
+		if (!(expected instanceof Float32Array))
+		{
+			if ((expected !== null) && (expected !== undefined))
+				expected = expected.constructor.name;
+
+			QUnit.assert.push(false, expected, "Float32Array", "wrong expected type");
+			return false;
+		}
+
 		var size = value.length;
 		if (size !== expected.length)
-			this.push(false, size, expected.length, "different buffer sizes");
-		else
 		{
-			var res = true;
-			for (var i = 0; i < size; ++i)
+			QUnit.assert.push(false, size, expected.length, "different buffer sizes");
+			return false;
+		}
+
+		return true;
+	}
+
+	function _bufferCompare(value, expected, message, testEqual)
+	{
+		//Warning: javascript Array numbers have double precision, values may
+		//be truncated when wrapped into a Float32Array
+		if (expected instanceof Array)
+			expected = new Float32Array(expected);
+
+		if (_verifyBuffers(value, expected))
+		{
+			var n = value.length;
+			for (var i = 0; i < n; ++i)
 			{
 				if (value[i] !== expected[i])
 				{
-					res = "[" + i + "] => ";
-					this.push(false, res + value[i], res + expected[i], message);
-
-					res = false;
-					break;
+					n = "[" + i + "] => ";
+					QUnit.assert.push(!testEqual, n + value[i], n + expected[i], message);
+					return;
 				}
 			}
 
-			if (res)
-			{
-				res = "[...]";
-				this.push(true, res, res, message);
-			}
+			n = "[...]";
+			QUnit.assert.push(testEqual, n, testEqual ? n : "not" + n, message);
 		}
 	}
-};
+
+	function _bufferComparish(value, expected, message, testEqual)
+	{
+		//Warning: javascript Array numbers have double precision, values may
+		//be truncated when wrapped into a Float32Array
+		if (expected instanceof Array)
+			expected = new Float32Array(expected);
+
+		if (_verifyBuffers(value, expected))
+		{
+			var n = value.length;
+			for (var i = 0; i < n; ++i)
+			{
+				if (Math.abs(value[i] - expected[i]) >= _EPSILON)
+				{
+					n = "[" + i + "] => ";
+					QUnit.assert.push(!testEqual, n + value[i], n + expected[i], message);
+					return;
+				}
+			}
+
+			n = "[...]";
+			QUnit.assert.push(testEqual, n, testEqual ? n : "not" + n, message);
+		}
+	}
+
+	QUnit.assert.bufferEqual = function(value, expected, message)
+	{
+		_bufferCompare(value, expected, message, true);
+	};
+
+	QUnit.assert.notBufferEqual = function(value, expected, message)
+	{
+		_bufferCompare(value, expected, message, false);
+	};
+
+	QUnit.assert.bufferEqualish = function(value, expected, message)
+	{
+		_bufferComparish(value, expected, message, true);
+	};
+
+	QUnit.assert.notBufferEqualish = function(value, expected, message)
+	{
+		_bufferComparish(value, expected, message, false);
+	};
+
+	QUnit.assert.equalish = function(value, expected, message)
+	{
+		this.push(Math.abs(value - expected) < _EPSILON, value, expected, message);
+	};
+
+	QUnit.assert.notEqualish = function(value, expected, message)
+	{
+		this.push(Math.abs(value - expected) >= _EPSILON, value, expected, message);
+	};
+})();
