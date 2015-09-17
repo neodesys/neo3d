@@ -635,7 +635,7 @@ neo3d.Quat.bufferRotationEquals = function(inBufferA, inOffsetA, inBufferB, inOf
 		return false;
 
 	var dot = neo3d.abs(xa * xb + ya * yb + za * zb + wa * wb);
-	if (dot < neo3d.EPSILON2)
+	if (dot < neo3d.EPSILON)
 		return false;
 
 	dot /= neo3d.sqrt(na * nb);

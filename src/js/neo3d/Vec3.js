@@ -462,7 +462,7 @@ neo3d.Vec3.bufferShortestAngle = function(inBufferA, inOffsetA, inBufferB, inOff
 		return 0.0;
 
 	var dot = xa * xb + ya * yb + za * zb;
-	if (neo3d.abs(dot) < neo3d.EPSILON2)
+	if (neo3d.abs(dot) < neo3d.EPSILON)
 		return neo3d.HALF_PI;
 
 	dot /= neo3d.sqrt(na * nb);
@@ -489,7 +489,7 @@ neo3d.Vec3.bufferArePerpendicular = function(inBufferA, inOffsetA, inBufferB, in
 		((neo3d.abs(xb) >= neo3d.EPSILON) ||
 		 (neo3d.abs(yb) >= neo3d.EPSILON) ||
 		 (neo3d.abs(zb) >= neo3d.EPSILON)) &&
-		(neo3d.abs(xa * xb + ya * yb + za * zb) < neo3d.EPSILON2))
+		(neo3d.abs(xa * xb + ya * yb + za * zb) < neo3d.EPSILON))
 		return true;
 	else
 		return false;
@@ -510,9 +510,9 @@ neo3d.Vec3.bufferAreColinear = function(inBufferA, inOffsetA, inBufferB, inOffse
 		((neo3d.abs(xb) >= neo3d.EPSILON) ||
 		 (neo3d.abs(yb) >= neo3d.EPSILON) ||
 		 (neo3d.abs(zb) >= neo3d.EPSILON)) &&
-		(neo3d.abs(ya * zb - yb * za) < neo3d.EPSILON2) &&
-		(neo3d.abs(za * xb - zb * xa) < neo3d.EPSILON2) &&
-		(neo3d.abs(xa * yb - xb * ya) < neo3d.EPSILON2))
+		(neo3d.abs(ya * zb - yb * za) < neo3d.EPSILON) &&
+		(neo3d.abs(za * xb - zb * xa) < neo3d.EPSILON) &&
+		(neo3d.abs(xa * yb - xb * ya) < neo3d.EPSILON))
 		return true;
 	else
 		return false;
