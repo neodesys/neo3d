@@ -466,9 +466,9 @@ neo3d.Vec3.bufferShortestAngle = function(inBufferA, inOffsetA, inBufferB, inOff
 		return neo3d.HALF_PI;
 
 	dot /= neo3d.sqrt(na * nb);
-	if (dot >= 1.0)
+	if (dot > 1.0 - neo3d.EPSILON)
 		return 0.0;
-	else if (dot <= -1.0)
+	else if (dot < neo3d.EPSILON - 1.0)
 		return neo3d.PI;
 	else
 		return neo3d.acos(dot);

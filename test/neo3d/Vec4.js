@@ -97,7 +97,11 @@ QUnit.test("copy", function(assert)
 
 QUnit.test("isNull", function(assert)
 {
+	this.vec.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
 	assert.ok(this.vec.isNull());
+
+	this.vec.buffer[1] = 0.1;
+	assert.notOk(this.vec.isNull());
 });
 
 QUnit.test("equals", function(assert)
@@ -106,9 +110,19 @@ QUnit.test("equals", function(assert)
 	this.randomVal[1] += 0.9 * neo3d.EPSILON;
 	this.vec.setFromArray(this.randomVal);
 
+	assert.ok(this.vec.equals(this.vec));
+
 	assert.notBufferEqual(this.vec.buffer, v4.buffer);
 	assert.bufferEqualish(this.vec.buffer, v4.buffer);
 	assert.ok(this.vec.equals(v4));
+
+	this.vec.buffer[1] += neo3d.EPSILON;
+	assert.bufferEqualish(this.vec.buffer, v4.buffer);
+	assert.notOk(this.vec.equals(v4));
+
+	this.vec.buffer[1] += 0.1;
+	assert.notBufferEqualish(this.vec.buffer, v4.buffer);
+	assert.notOk(this.vec.equals(v4));
 });
 
 QUnit.test("add", function(assert)
@@ -230,6 +244,9 @@ QUnit.test("normalize", function(assert)
 	var v4 = new neo3d.Vec4().setFromValues(8.6, 4.5, 1.7, 0.9);
 	assert.bufferEqualish(this.vec.normalize(v4).buffer, [0.8691304, 0.4547775, 0.1718048, 0.0909555]);
 	assert.equalish(this.vec.norm(), 1.0);
+
+	v4.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.vec.normalize(v4).buffer, [0, 0, 0, 0]);
 });
 
 QUnit.test("normalizeInPlace", function(assert)
@@ -237,6 +254,9 @@ QUnit.test("normalizeInPlace", function(assert)
 	this.vec.setFromValues(8.6, 4.5, 1.7, 0.9);
 	assert.bufferEqualish(this.vec.normalizeInPlace().buffer, [0.8691304, 0.4547775, 0.1718048, 0.0909555]);
 	assert.equalish(this.vec.norm(), 1.0);
+
+	this.vec.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.vec.normalizeInPlace().buffer, [0, 0, 0, 0]);
 });
 
 QUnit.test("dotProduct", function(assert)

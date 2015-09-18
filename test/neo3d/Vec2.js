@@ -77,7 +77,11 @@ QUnit.test("copy", function(assert)
 
 QUnit.test("isNull", function(assert)
 {
+	this.vec.setFromValues(0.0000001, 0.0000002);
 	assert.ok(this.vec.isNull());
+
+	this.vec.buffer[1] = 0.1;
+	assert.notOk(this.vec.isNull());
 });
 
 QUnit.test("equals", function(assert)
@@ -86,9 +90,19 @@ QUnit.test("equals", function(assert)
 	this.randomVal[1] += 0.9 * neo3d.EPSILON;
 	this.vec.setFromArray(this.randomVal);
 
+	assert.ok(this.vec.equals(this.vec));
+
 	assert.notBufferEqual(this.vec.buffer, v2.buffer);
 	assert.bufferEqualish(this.vec.buffer, v2.buffer);
 	assert.ok(this.vec.equals(v2));
+
+	this.vec.buffer[1] += neo3d.EPSILON;
+	assert.bufferEqualish(this.vec.buffer, v2.buffer);
+	assert.notOk(this.vec.equals(v2));
+
+	this.vec.buffer[1] += 0.1;
+	assert.notBufferEqualish(this.vec.buffer, v2.buffer);
+	assert.notOk(this.vec.equals(v2));
 });
 
 QUnit.test("add", function(assert)
@@ -206,6 +220,9 @@ QUnit.test("normalize", function(assert)
 	var v2 = new neo3d.Vec2().setFromValues(8.6, 4.5);
 	assert.bufferEqualish(this.vec.normalize(v2).buffer, [0.8860331, 0.463622]);
 	assert.equalish(this.vec.norm(), 1.0);
+
+	v2.setFromValues(0.0000001, 0.0000002);
+	assert.bufferEqual(this.vec.normalize(v2).buffer, [0, 0]);
 });
 
 QUnit.test("normalizeInPlace", function(assert)
@@ -213,6 +230,9 @@ QUnit.test("normalizeInPlace", function(assert)
 	this.vec.setFromValues(8.6, 4.5);
 	assert.bufferEqualish(this.vec.normalizeInPlace().buffer, [0.8860331, 0.463622]);
 	assert.equalish(this.vec.norm(), 1.0);
+
+	this.vec.setFromValues(0.0000001, 0.0000002);
+	assert.bufferEqual(this.vec.normalizeInPlace().buffer, [0, 0]);
 });
 
 QUnit.test("dotProduct", function(assert)
@@ -226,10 +246,29 @@ QUnit.test("dotProduct", function(assert)
 QUnit.test("shortestAngle", function(assert)
 {
 	var v2 = new neo3d.Vec2().setFromValues(6.3, -4.7);
-	assert.equal(this.vec.shortestAngle(v2), 0);
+	assert.notEqualish(v2.norm(), 1.0);
+	this.vec.setFromValues(0.0000001, 0.0000002);
+
+	assert.equal(this.vec.shortestAngle(v2), 0.0);
+	assert.equal(v2.shortestAngle(this.vec), 0.0);
 
 	this.vec.setFromValues(1.4, 2.2);
+	assert.notEqualish(this.vec.norm(), 1.0);
+
 	assert.equalish(this.vec.shortestAngle(v2), 1.6450237);
+	assert.equalish(v2.shortestAngle(this.vec), 1.6450237);
+
+	this.vec.negateInPlace();
+	assert.equalish(this.vec.shortestAngle(v2), neo3d.PI - 1.6450237);
+
+	this.vec.setFromValues(0.6, 0.8042553); //perpendicular to v2
+	assert.equal(this.vec.shortestAngle(v2), neo3d.HALF_PI);
+
+	this.vec.copy(v2).scaleInPlace(1.3); //colinear to v2, same direction
+	assert.equal(this.vec.shortestAngle(v2), 0.0);
+
+	this.vec.negateInPlace(); //colinear to v2, opposite direction
+	assert.equal(this.vec.shortestAngle(v2), neo3d.PI);
 });
 
 QUnit.test("isPerpendicular", function(assert)
@@ -238,8 +277,12 @@ QUnit.test("isPerpendicular", function(assert)
 	assert.ok(neo3d.Vec2.J.isPerpendicular(neo3d.Vec2.I));
 
 	var v2 = new neo3d.Vec2().setFromValues(1.5, 2.4);
+	assert.notOk(this.vec.isPerpendicular(v2));
+	assert.notOk(v2.isPerpendicular(this.vec));
+
 	this.vec.setFromValues(2.3, -1.4375);
 	assert.ok(this.vec.isPerpendicular(v2));
+	assert.ok(v2.isPerpendicular(this.vec));
 
 	this.vec.buffer[0] = 2.4;
 	assert.notOk(this.vec.isPerpendicular(v2));
@@ -248,8 +291,16 @@ QUnit.test("isPerpendicular", function(assert)
 QUnit.test("isColinear", function(assert)
 {
 	var v2 = new neo3d.Vec2().setFromValues(1.5, 2.4);
+	assert.notOk(this.vec.isColinear(v2));
+	assert.notOk(v2.isColinear(this.vec));
+
 	this.vec.setFromValues(3.45, 5.52);
 	assert.ok(this.vec.isColinear(v2));
+	assert.ok(v2.isColinear(this.vec));
+
+	this.vec.scaleInPlace(-2.3);
+	assert.ok(this.vec.isColinear(v2));
+	assert.ok(v2.isColinear(this.vec));
 
 	this.vec.buffer[0] = 3.5;
 	assert.notOk(this.vec.isColinear(v2));
