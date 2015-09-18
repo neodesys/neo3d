@@ -59,6 +59,7 @@ module.exports = function(config) {
 		files: [
 			"build/neo3d.min.js",
 			"build/disfract.min.js",
+			{pattern: "build/*.map", watched: false, included: false},
 			"test/common.js",
 			"test/**/*.js"
 		],

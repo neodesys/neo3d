@@ -74,8 +74,7 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				stripBanners: true,
-				sourceMap: true,
-				banner: "/*! <%= pkg.name %> - build <%= grunt.template.today(\"UTC:yyyymmdd-HH:MM:ss\") %> | <%= pkg.author %> | License: <%= pkg.license %> */\n\"use strict\";\n",
+				banner: "/*! <%= pkg.name %> - build <%= grunt.template.today(\"UTC:yyyymmdd-HH:MM:ss\") %> | <%= pkg.author %> | License: <%= pkg.license %> */\n\"use strict\";\n\n",
 				process: function(content) {
 					return content.replace(/^\s*['"]use\s+strict['"]\s*;?\s*$/gim, "");
 				}
@@ -96,7 +95,7 @@ module.exports = function(grunt) {
 
 		clean: {
 			unused: {
-				src: ["build/neo3d.js", "build/neo3d.js.map", "build/disfract.js", "build/disfract.js.map"]
+				src: ["build/neo3d.js", "build/disfract.js"]
 			},
 
 			build: {
@@ -158,20 +157,12 @@ module.exports = function(grunt) {
 			},
 
 			neo3d: {
-				options: {
-					sourceMapIn: "build/neo3d.js.map"
-				},
-
 				nonull: true,
 				src: "build/neo3d.js",
 				dest: "build/neo3d.min.js"
 			},
 
 			disfract: {
-				options: {
-					sourceMapIn: "build/disfract.js.map"
-				},
-
 				nonull: true,
 				src: "build/disfract.js",
 				dest: "build/disfract.min.js"
