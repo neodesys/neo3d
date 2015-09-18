@@ -57,7 +57,6 @@ neo3d.Quat.prototype.setFromAxisAndAngle = function(v3, angle)
 
 neo3d.Quat.prototype.setFromRotationTo = function(v3Start, v3End)
 {
-	//v3Start and v3End must be unit vectors
 	neo3d.Quat.bufferSetFromRotationTo(this.buffer, 0, v3Start.buffer, 0, v3End.buffer, 0);
 	return this;
 };
@@ -347,15 +346,46 @@ neo3d.Quat.bufferSetFromAxisAndAngle = function(outBuffer, outOffset, inV3Buffer
 
 neo3d.Quat.bufferSetFromRotationTo = function(outBuffer, outOffset, inV3StartBuffer, inV3StartOffset, inV3EndBuffer, inV3EndOffset)
 {
-	//v3Start and v3End must be unit vectors
 	var x0 = inV3StartBuffer[inV3StartOffset],
 		y0 = inV3StartBuffer[inV3StartOffset + 1],
 		z0 = inV3StartBuffer[inV3StartOffset + 2],
-		x1 = inV3EndBuffer[inV3EndOffset],
+		n0 = x0 * x0 + y0 * y0 + z0 * z0;
+
+	if (n0 < neo3d.EPSILON2)
+	{
+		//v3Start is a null-vector, thus transformation is the Identity
+		//quaternion
+		outBuffer[outOffset] = outBuffer[outOffset + 1] = outBuffer[outOffset + 2] = 0.0;
+		outBuffer[outOffset + 3] = 1.0;
+		return outBuffer;
+	}
+
+	var x1 = inV3EndBuffer[inV3EndOffset],
 		y1 = inV3EndBuffer[inV3EndOffset + 1],
 		z1 = inV3EndBuffer[inV3EndOffset + 2],
-		dot = x0 * x1 + y0 * y1 + z0 * z1,
-		x = 0.0, y = 0.0, z = 0.0, n = 0.0;
+		n1 = x1 * x1 + y1 * y1 + z1 * z1;
+
+	if (n1 < neo3d.EPSILON2)
+	{
+		//v3End is a null-vector, thus transformation is the Identity
+		//quaternion
+		outBuffer[outOffset] = outBuffer[outOffset + 1] = outBuffer[outOffset + 2] = 0.0;
+		outBuffer[outOffset + 3] = 1.0;
+		return outBuffer;
+	}
+
+	n0 = 1.0 / neo3d.sqrt(n0);
+	x0 *= n0;
+	y0 *= n0;
+	z0 *= n0;
+
+	n1 = 1.0 / neo3d.sqrt(n1);
+	x1 *= n1;
+	y1 *= n1;
+	z1 *= n1;
+
+	var dot = x0 * x1 + y0 * y1 + z0 * z1,
+		x = 0.0, y = 0.0, z = 0.0;
 
 	if (dot > 1.0 - neo3d.EPSILON)
 	{
@@ -375,29 +405,20 @@ neo3d.Quat.bufferSetFromRotationTo = function(outBuffer, outOffset, inV3StartBuf
 		//Vec3.K = Vec3.I ^ Vec3.J)
 		y = -z0;
 		z = y0;
-		n = y * y + z * z;
+		n0 = y * y + z * z;
 
-		if (n < neo3d.EPSILON2)
+		if (n0 < neo3d.EPSILON2)
 		{
 			x = z0;
 			y = 0.0;
 			z = -x0;
-			n = x * x + z * z;
-
-			if (n < neo3d.EPSILON2)
-			{
-				//v3Start is a null-vector, thus transformation is the
-				//Identity quaternion
-				outBuffer[outOffset] = outBuffer[outOffset + 1] = outBuffer[outOffset + 2] = 0.0;
-				outBuffer[outOffset + 3] = 1.0;
-				return outBuffer;
-			}
+			n0 = x * x + z * z;
 		}
 
-		n = 1.0 / neo3d.sqrt(n);
-		outBuffer[outOffset] = x * n;
-		outBuffer[outOffset + 1] = y * n;
-		outBuffer[outOffset + 2] = z * n;
+		n0 = 1.0 / neo3d.sqrt(n0);
+		outBuffer[outOffset] = x * n0;
+		outBuffer[outOffset + 1] = y * n0;
+		outBuffer[outOffset + 2] = z * n0;
 		outBuffer[outOffset + 3] = 0.0;
 
 		return outBuffer;
@@ -411,11 +432,11 @@ neo3d.Quat.bufferSetFromRotationTo = function(outBuffer, outOffset, inV3StartBuf
 	z = x0 * y1 - y0 * x1;
 	dot += 1.0;
 
-	n = 1.0 / neo3d.sqrt(x * x + y * y + z * z + dot * dot);
-	outBuffer[outOffset] = x * n;
-	outBuffer[outOffset + 1] = y * n;
-	outBuffer[outOffset + 2] = z * n;
-	outBuffer[outOffset + 3] = dot * n;
+	n0 = 1.0 / neo3d.sqrt(x * x + y * y + z * z + dot * dot);
+	outBuffer[outOffset] = x * n0;
+	outBuffer[outOffset + 1] = y * n0;
+	outBuffer[outOffset + 2] = z * n0;
+	outBuffer[outOffset + 3] = dot * n0;
 
 	return outBuffer;
 };
