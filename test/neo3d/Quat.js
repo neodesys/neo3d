@@ -290,38 +290,75 @@ QUnit.test("negateInPlace", function(assert)
 
 QUnit.test("conjugate", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q0 = new neo3d.Quat().setFromArray(this.randomVal),
+		q1 = new neo3d.Quat().conjugate(q0);
+
+	this.randomVal[0] = -this.randomVal[0];
+	this.randomVal[1] = -this.randomVal[1];
+	this.randomVal[2] = -this.randomVal[2];
+
+	assert.bufferEqual(q1.buffer, this.randomVal);
+	assert.bufferEqual(this.quat.conjugate(q1).buffer, q0.buffer);
 });
 
 QUnit.test("conjugateInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	this.quat.setFromArray(this.randomVal);
+
+	this.randomVal[0] = -this.randomVal[0];
+	this.randomVal[1] = -this.randomVal[1];
+	this.randomVal[2] = -this.randomVal[2];
+
+	assert.bufferEqual(this.quat.conjugateInPlace().buffer, this.randomVal);
 });
 
 QUnit.test("multiply", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q0 = new neo3d.Quat().setFromValues(1.2, -2.2, 3.4, -1.6),
+		q1 = new neo3d.Quat().setFromValues(-3.4, 1.7, -2.9, 0.8);
+
+	assert.bufferEqualish(this.quat.multiply(q0, q1).buffer, [7.0, -12.56, 1.92, 16.4]);
+	assert.bufferEqualish(this.quat.multiply(q1, q0).buffer, [5.8, 3.6, 12.8, 16.4]);
 });
 
 QUnit.test("multiplyInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q = new neo3d.Quat().setFromValues(-3.4, 1.7, -2.9, 0.8);
+	this.quat.setFromValues(1.2, -2.2, 3.4, -1.6);
+
+	assert.bufferEqualish(this.quat.multiplyInPlace(q).buffer, [7.0, -12.56, 1.92, 16.4]);
 });
 
 QUnit.test("invert", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q = new neo3d.Quat().setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.quat.invert(q).buffer, [0, 0, 0, Number.POSITIVE_INFINITY]);
+
+	q.buffer[3] = -0.0000001;
+	assert.bufferEqual(this.quat.invert(q).buffer, [0, 0, 0, Number.NEGATIVE_INFINITY]);
+
+	q.setFromValues(1.8, -2.4, -0.6, 1.7);
+	assert.notEqualish(q.norm(), 1.0);
+	assert.bufferEqualish(this.quat.invert(q).buffer, [-0.1469388, 0.1959184, 0.0489796, 0.1387755]);
+	assert.bufferEqualish(this.quat.invert(this.quat).buffer, q.buffer);
+
+	q.normalizeInPlace();
+	assert.bufferEqualish(this.quat.invert(q).buffer, q.conjugateInPlace().buffer);
+	assert.equalish(this.quat.norm(), 1.0);
 });
 
 QUnit.test("invertInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	this.quat.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.quat.invertInPlace().buffer, [0, 0, 0, Number.POSITIVE_INFINITY]);
+
+	this.quat.setFromValues(0.0000001, 0.0000002, 0.0000003, -0.0000004);
+	assert.bufferEqual(this.quat.invertInPlace().buffer, [0, 0, 0, Number.NEGATIVE_INFINITY]);
+
+	this.quat.setFromValues(1.8, -2.4, -0.6, 1.7);
+	assert.notEqualish(this.quat.norm(), 1.0);
+	assert.bufferEqualish(this.quat.invertInPlace().buffer, [-0.1469388, 0.1959184, 0.0489796, 0.1387755]);
+	assert.bufferEqualish(this.quat.invertInPlace().buffer, [1.8, -2.4, -0.6, 1.7]);
 });
 
 QUnit.test("squareNorm", function(assert)
@@ -366,50 +403,114 @@ QUnit.test("dotProduct", function(assert)
 
 QUnit.test("log", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q = new neo3d.Quat().setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0);
+	assert.bufferEqual(this.quat.log(q).buffer, [0, 0, 0, Number.NEGATIVE_INFINITY]);
+
+	q.buffer[3] = 2.3;
+	assert.bufferEqualish(this.quat.log(q).buffer, [0, 0, 0, 0.8329091]);
+
+	q.buffer[3] = -2.3;
+	assert.bufferEqualish(this.quat.log(q).buffer, [neo3d.PI, 0, 0, 0.8329091]);
+
+	q.setFromValues(0.7, 1.6, 4.7, -1.9);
+	assert.bufferEqualish(this.quat.log(q).buffer, [0.2698678, 0.6168407, 1.8119697, 1.6793189]);
 });
 
 QUnit.test("logInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	this.quat.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0);
+	assert.bufferEqual(this.quat.logInPlace().buffer, [0, 0, 0, Number.NEGATIVE_INFINITY]);
+
+	this.quat.buffer[3] = 2.3;
+	assert.bufferEqualish(this.quat.logInPlace().buffer, [0, 0, 0, 0.8329091]);
+
+	this.quat.buffer[3] = -2.3;
+	assert.bufferEqualish(this.quat.logInPlace().buffer, [neo3d.PI, 0, 0, 0.8329091]);
+
+	this.quat.setFromValues(0.7, 1.6, 4.7, -1.9);
+	assert.bufferEqualish(this.quat.logInPlace().buffer, [0.2698678, 0.6168407, 1.8119697, 1.6793189]);
 });
 
 QUnit.test("exp", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q = new neo3d.Quat().setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0);
+	assert.bufferEqual(this.quat.exp(q).buffer, [0, 0, 0, 1]);
+
+	q.setFromValues(0.2698678, 0.6168407, 1.8119697, 1.6793189);
+	assert.bufferEqualish(this.quat.exp(q).buffer, [0.7, 1.6, 4.7, -1.9]);
 });
 
 QUnit.test("expInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	this.quat.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0);
+	assert.bufferEqual(this.quat.expInPlace().buffer, [0, 0, 0, 1]);
+
+	this.quat.setFromValues(0.2698678, 0.6168407, 1.8119697, 1.6793189);
+	assert.bufferEqualish(this.quat.expInPlace().buffer, [0.7, 1.6, 4.7, -1.9]);
 });
 
 QUnit.test("pow", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q = new neo3d.Quat().setFromArray(this.randomVal);
+	assert.bufferEqual(this.quat.pow(q, 0.0000001).buffer, [0, 0, 0, 1]);
+	assert.bufferEqual(this.quat.pow(q, -0.0000001).buffer, [0, 0, 0, 1]);
+
+	assert.bufferEqual(this.quat.pow(q, 1.0000000000001).buffer, this.randomVal);
+	assert.bufferEqual(this.quat.pow(q, 0.9999999999999).buffer, this.randomVal);
+
+	q.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.quat.pow(q, 2.3).buffer, [0, 0, 0, 0]);
+
+	q.buffer[3] = 1.4;
+	assert.bufferEqualish(this.quat.pow(q, 2.3).buffer, [0, 0, 0, 2.1681757]);
+
+	q.setFromValues(-0.3, 2.4, 4.8, 1.2);
+	assert.bufferEqualish(this.quat.pow(q, 0.8).buffer, [-0.1928216, 1.5425731, 3.0851461, 1.8421728]);
 });
 
 QUnit.test("powInPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	this.quat.setFromArray(this.randomVal);
+	assert.bufferEqual(this.quat.powInPlace(0.0000001).buffer, [0, 0, 0, 1]);
+
+	this.quat.setFromArray(this.randomVal);
+	assert.bufferEqual(this.quat.powInPlace(-0.0000001).buffer, [0, 0, 0, 1]);
+
+	this.quat.setFromArray(this.randomVal);
+	assert.bufferEqual(this.quat.powInPlace(1.0000000000001).buffer, this.randomVal);
+	assert.bufferEqual(this.quat.powInPlace(0.9999999999999).buffer, this.randomVal);
+
+	this.quat.setFromValues(0.0000001, 0.0000002, 0.0000003, 0.0000004);
+	assert.bufferEqual(this.quat.powInPlace(2.3).buffer, [0, 0, 0, 0]);
+
+	this.quat.buffer[3] = 1.4;
+	assert.bufferEqualish(this.quat.powInPlace(2.3).buffer, [0, 0, 0, 2.1681757]);
+
+	this.quat.setFromValues(-0.3, 2.4, 4.8, 1.2);
+	assert.bufferEqualish(this.quat.powInPlace(0.8).buffer, [-0.1928216, 1.5425731, 3.0851461, 1.8421728]);
 });
 
 QUnit.test("transformVec3", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var v0 = new neo3d.Vec3().setFromValues(1.3, -5.4, 2.6),
+		v1 = new neo3d.Vec3();
+
+	this.quat.setFromValues(0.2503262, -0.897002, 0.3337682, 0.1460236);
+	assert.equalish(this.quat.norm(), 1.0);
+
+	this.quat.transformVec3(v1, v0);
+	assert.bufferEqualish(v1.buffer, [1.6231512, -5.7241077, 1.486597]);
 });
 
 QUnit.test("transformVec3InPlace", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var v3 = new neo3d.Vec3().setFromValues(1.3, -5.4, 2.6);
+
+	this.quat.setFromValues(0.2503262, -0.897002, 0.3337682, 0.1460236);
+	assert.equalish(this.quat.norm(), 1.0);
+
+	this.quat.transformVec3InPlace(v3);
+	assert.bufferEqualish(v3.buffer, [1.6231512, -5.7241077, 1.486597]);
 });
 
 QUnit.test("lerp", function(assert)
@@ -424,18 +525,62 @@ QUnit.test("lerp", function(assert)
 
 QUnit.test("slerp", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q0 = new neo3d.Quat().setFromValues(0.037184, 0.8738233, 0.4090237, 0.2602878),
+		q1 = new neo3d.Quat().setFromValues(0.3747367, -0.6172134, 0.5951701, -0.3526934);
+
+	assert.equalish(q0.norm(), 1.0);
+	assert.equalish(q1.norm(), 1.0);
+
+	//dot < 0
+	assert.bufferEqual(this.quat.slerp(q0, 0, q1).buffer, q0.buffer);
+	assert.bufferEqualish(this.quat.slerp(q0, 0.4, q1).buffer, [-0.1585947, 0.9203656, -0.005186, 0.3574185]);
+	assert.bufferEqual(this.quat.slerp(q0, 1, q1).buffer, q1.negateInPlace().buffer);
+
+	//dot > 0
+	assert.bufferEqual(this.quat.slerp(q0, 0, q1).buffer, q0.buffer);
+	assert.bufferEqualish(this.quat.slerp(q0, 0.4, q1).buffer, [-0.1585947, 0.9203656, -0.005186, 0.3574185]);
+	assert.bufferEqual(this.quat.slerp(q0, 1, q1).buffer, q1.buffer);
+
+	//Fallback to lerp
+	q1.setFromValues(0.0371996, 0.874189, 0.4081707, 0.2603967);
+	assert.equalish(q1.norm(), 1.0);
+	assert.bufferEqual(this.quat.slerp(q0, 0, q1).buffer, q0.buffer);
+	assert.bufferEqualish(this.quat.slerp(q0, 0.4, q1).buffer, [0.0371902, 0.8739695, 0.4086825, 0.2603314]);
+	assert.bufferEqual(this.quat.slerp(q0, 1, q1).buffer, q1.buffer);
 });
 
 QUnit.test("squad", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var s0 = new neo3d.Quat().setFromValues(0.2262019, 0.7313482, 0.6159059, 0.1860711),
+		q0 = new neo3d.Quat().setFromValues(0.2148345, 0.6445034, 0.5370861, 0.5),
+		q1 = new neo3d.Quat().setFromValues(0.0418189, 0.1254567, 0.2090945, 0.9689124),
+		s1 = new neo3d.Quat().setFromValues(0.0062012, -0.0492608, 0.2737469, 0.9605194);
+
+	assert.equalish(s0.norm(), 1.0);
+	assert.equalish(q0.norm(), 1.0);
+	assert.equalish(q1.norm(), 1.0);
+	assert.equalish(s1.norm(), 1.0);
+
+	assert.bufferEqual(this.quat.squad(s0, q0, 0, q1, s1).buffer, q0.buffer);
+	assert.bufferEqualish(this.quat.squad(s0, q0, 0.3, q1, s1).buffer, [0.1795436, 0.5455944, 0.5286007, 0.6250378]);
+	assert.bufferEqual(this.quat.squad(s0, q0, 1, q1, s1).buffer, q1.buffer);
 });
 
 QUnit.test("computeSquadIntermediate", function(assert)
 {
-	assert.expect(0);
-	//TODO
+	var q0 = new neo3d.Quat().setFromValues(0.2041241, 0.4082483, 0.2041241, 0.8660254),
+		q1 = new neo3d.Quat().setFromValues(0.2148345, 0.6445034, 0.5370861, 0.5),
+		q2 = new neo3d.Quat().setFromValues(0.0418189, 0.1254567, 0.2090945, 0.9689124),
+		q3 = new neo3d.Quat().setFromValues(-0.0311256, 0.1556279, -0.4980091, 0.8525245);
+
+	assert.equalish(q0.norm(), 1.0);
+	assert.equalish(q1.norm(), 1.0);
+	assert.equalish(q2.norm(), 1.0);
+	assert.equalish(q3.norm(), 1.0);
+
+	assert.bufferEqualish(this.quat.computeSquadIntermediate(q0, q1, q2).buffer, [0.2262019, 0.7313482, 0.6159059, 0.1860711]);
+	assert.equalish(this.quat.norm(), 1.0);
+
+	assert.bufferEqualish(this.quat.computeSquadIntermediate(q1, q2, q3).buffer, [0.0062012, -0.0492608, 0.2737469, 0.9605194]);
+	assert.equalish(this.quat.norm(), 1.0);
 });
