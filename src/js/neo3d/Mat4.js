@@ -270,37 +270,37 @@ neo3d.Mat4.prototype.transposeInPlace = function()
 neo3d.Mat4.prototype.transformVec4 = function(outV4, inV4)
 {
 	neo3d.Mat4.bufferTransformVec4(outV4.buffer, 0, this.buffer, 0, inV4.buffer, 0);
-	return this;
+	return outV4;
 };
 
 neo3d.Mat4.prototype.transformVec4InPlace = function(v4)
 {
 	neo3d.Mat4.bufferTransformVec4(v4.buffer, 0, this.buffer, 0, v4.buffer, 0);
-	return this;
+	return v4;
 };
 
 neo3d.Mat4.prototype.transformVec3Pos = function(outV3, inV3)
 {
 	neo3d.Mat4.bufferTransformVec3Pos(outV3.buffer, 0, this.buffer, 0, inV3.buffer, 0);
-	return this;
+	return outV3;
 };
 
 neo3d.Mat4.prototype.transformVec3PosInPlace = function(v3)
 {
 	neo3d.Mat4.bufferTransformVec3Pos(v3.buffer, 0, this.buffer, 0, v3.buffer, 0);
-	return this;
+	return v3;
 };
 
 neo3d.Mat4.prototype.transformVec3Dir = function(outV3, inV3)
 {
 	neo3d.Mat4.bufferTransformVec3Dir(outV3.buffer, 0, this.buffer, 0, inV3.buffer, 0);
-	return this;
+	return outV3;
 };
 
 neo3d.Mat4.prototype.transformVec3DirInPlace = function(v3)
 {
 	neo3d.Mat4.bufferTransformVec3Dir(v3.buffer, 0, this.buffer, 0, v3.buffer, 0);
-	return this;
+	return v3;
 };
 
 neo3d.Mat4.prototype.buildFrustumProj = function(left, right, bottom, top, near, far)
@@ -717,7 +717,7 @@ neo3d.Mat4.bufferTransformVec4 = function(outV4Buffer, outV4Offset, inM4Buffer, 
 	outV4Buffer[outV4Offset + 2] = x * inM4Buffer[inM4Offset + 2] + y * inM4Buffer[inM4Offset + 6] + z * inM4Buffer[inM4Offset + 10] + w * inM4Buffer[inM4Offset + 14];
 	outV4Buffer[outV4Offset + 3] = x * inM4Buffer[inM4Offset + 3] + y * inM4Buffer[inM4Offset + 7] + z * inM4Buffer[inM4Offset + 11] + w * inM4Buffer[inM4Offset + 15];
 
-	return inM4Buffer;
+	return outV4Buffer;
 };
 
 neo3d.Mat4.bufferTransformVec3Pos = function(outV3Buffer, outV3Offset, inM4Buffer, inM4Offset, inV3Buffer, inV3Offset)
@@ -730,7 +730,7 @@ neo3d.Mat4.bufferTransformVec3Pos = function(outV3Buffer, outV3Offset, inM4Buffe
 	outV3Buffer[outV3Offset + 1] = x * inM4Buffer[inM4Offset + 1] + y * inM4Buffer[inM4Offset + 5] + z * inM4Buffer[inM4Offset + 9] + inM4Buffer[inM4Offset + 13];
 	outV3Buffer[outV3Offset + 2] = x * inM4Buffer[inM4Offset + 2] + y * inM4Buffer[inM4Offset + 6] + z * inM4Buffer[inM4Offset + 10] + inM4Buffer[inM4Offset + 14];
 
-	return inM4Buffer;
+	return outV3Buffer;
 };
 
 neo3d.Mat4.bufferTransformVec3Dir = function(outV3Buffer, outV3Offset, inM4Buffer, inM4Offset, inV3Buffer, inV3Offset)
@@ -743,7 +743,7 @@ neo3d.Mat4.bufferTransformVec3Dir = function(outV3Buffer, outV3Offset, inM4Buffe
 	outV3Buffer[outV3Offset + 1] = x * inM4Buffer[inM4Offset + 1] + y * inM4Buffer[inM4Offset + 5] + z * inM4Buffer[inM4Offset + 9];
 	outV3Buffer[outV3Offset + 2] = x * inM4Buffer[inM4Offset + 2] + y * inM4Buffer[inM4Offset + 6] + z * inM4Buffer[inM4Offset + 10];
 
-	return inM4Buffer;
+	return outV3Buffer;
 };
 
 neo3d.Mat4.bufferBuildFrustumProj = function(outBuffer, outOffset, left, right, bottom, top, near, far)

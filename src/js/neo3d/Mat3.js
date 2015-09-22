@@ -267,37 +267,37 @@ neo3d.Mat3.prototype.transposeInPlace = function()
 neo3d.Mat3.prototype.transformVec3 = function(outV3, inV3)
 {
 	neo3d.Mat3.bufferTransformVec3(outV3.buffer, 0, this.buffer, 0, inV3.buffer, 0);
-	return this;
+	return outV3;
 };
 
 neo3d.Mat3.prototype.transformVec3InPlace = function(v3)
 {
 	neo3d.Mat3.bufferTransformVec3(v3.buffer, 0, this.buffer, 0, v3.buffer, 0);
-	return this;
+	return v3;
 };
 
 neo3d.Mat3.prototype.transformVec2Pos = function(outV2, inV2)
 {
 	neo3d.Mat3.bufferTransformVec2Pos(outV2.buffer, 0, this.buffer, 0, inV2.buffer, 0);
-	return this;
+	return outV2;
 };
 
 neo3d.Mat3.prototype.transformVec2PosInPlace = function(v2)
 {
 	neo3d.Mat3.bufferTransformVec2Pos(v2.buffer, 0, this.buffer, 0, v2.buffer, 0);
-	return this;
+	return v2;
 };
 
 neo3d.Mat3.prototype.transformVec2Dir = function(outV2, inV2)
 {
 	neo3d.Mat3.bufferTransformVec2Dir(outV2.buffer, 0, this.buffer, 0, inV2.buffer, 0);
-	return this;
+	return outV2;
 };
 
 neo3d.Mat3.prototype.transformVec2DirInPlace = function(v2)
 {
 	neo3d.Mat3.bufferTransformVec2Dir(v2.buffer, 0, this.buffer, 0, v2.buffer, 0);
-	return this;
+	return v2;
 };
 
 //MUST be considered as constants
@@ -754,7 +754,7 @@ neo3d.Mat3.bufferTransformVec3 = function(outV3Buffer, outV3Offset, inM3Buffer, 
 	outV3Buffer[outV3Offset + 1] = x * inM3Buffer[inM3Offset + 1] + y * inM3Buffer[inM3Offset + 4] + z * inM3Buffer[inM3Offset + 7];
 	outV3Buffer[outV3Offset + 2] = x * inM3Buffer[inM3Offset + 2] + y * inM3Buffer[inM3Offset + 5] + z * inM3Buffer[inM3Offset + 8];
 
-	return inM3Buffer;
+	return outV3Buffer;
 };
 
 neo3d.Mat3.bufferTransformVec2Pos = function(outV2Buffer, outV2Offset, inM3Buffer, inM3Offset, inV2Buffer, inV2Offset)
@@ -765,7 +765,7 @@ neo3d.Mat3.bufferTransformVec2Pos = function(outV2Buffer, outV2Offset, inM3Buffe
 	outV2Buffer[outV2Offset] = x * inM3Buffer[inM3Offset] + y * inM3Buffer[inM3Offset + 3] + inM3Buffer[inM3Offset + 6];
 	outV2Buffer[outV2Offset + 1] = x * inM3Buffer[inM3Offset + 1] + y * inM3Buffer[inM3Offset + 4] + inM3Buffer[inM3Offset + 7];
 
-	return inM3Buffer;
+	return outV2Buffer;
 };
 
 neo3d.Mat3.bufferTransformVec2Dir = function(outV2Buffer, outV2Offset, inM3Buffer, inM3Offset, inV2Buffer, inV2Offset)
@@ -776,5 +776,5 @@ neo3d.Mat3.bufferTransformVec2Dir = function(outV2Buffer, outV2Offset, inM3Buffe
 	outV2Buffer[outV2Offset] = x * inM3Buffer[inM3Offset] + y * inM3Buffer[inM3Offset + 3];
 	outV2Buffer[outV2Offset + 1] = x * inM3Buffer[inM3Offset + 1] + y * inM3Buffer[inM3Offset + 4];
 
-	return inM3Buffer;
+	return outV2Buffer;
 };

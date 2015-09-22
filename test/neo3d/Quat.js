@@ -498,8 +498,7 @@ QUnit.test("transformVec3", function(assert)
 	this.quat.setFromValues(0.2503262, -0.897002, 0.3337682, 0.1460236);
 	assert.equalish(this.quat.norm(), 1.0);
 
-	this.quat.transformVec3(v1, v0);
-	assert.bufferEqualish(v1.buffer, [1.6231512, -5.7241077, 1.486597]);
+	assert.bufferEqualish(this.quat.transformVec3(v1, v0).buffer, [1.6231512, -5.7241077, 1.486597]);
 });
 
 QUnit.test("transformVec3InPlace", function(assert)
@@ -509,8 +508,7 @@ QUnit.test("transformVec3InPlace", function(assert)
 	this.quat.setFromValues(0.2503262, -0.897002, 0.3337682, 0.1460236);
 	assert.equalish(this.quat.norm(), 1.0);
 
-	this.quat.transformVec3InPlace(v3);
-	assert.bufferEqualish(v3.buffer, [1.6231512, -5.7241077, 1.486597]);
+	assert.bufferEqualish(this.quat.transformVec3InPlace(v3).buffer, [1.6231512, -5.7241077, 1.486597]);
 });
 
 QUnit.test("lerp", function(assert)

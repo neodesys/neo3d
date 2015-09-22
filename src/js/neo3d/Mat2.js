@@ -173,13 +173,13 @@ neo3d.Mat2.prototype.transposeInPlace = function()
 neo3d.Mat2.prototype.transformVec2 = function(outV2, inV2)
 {
 	neo3d.Mat2.bufferTransformVec2(outV2.buffer, 0, this.buffer, 0, inV2.buffer, 0);
-	return this;
+	return outV2;
 };
 
 neo3d.Mat2.prototype.transformVec2InPlace = function(v2)
 {
 	neo3d.Mat2.bufferTransformVec2(v2.buffer, 0, this.buffer, 0, v2.buffer, 0);
-	return this;
+	return v2;
 };
 
 //MUST be considered as constants
@@ -419,5 +419,5 @@ neo3d.Mat2.bufferTransformVec2 = function(outV2Buffer, outV2Offset, inM2Buffer, 
 	outV2Buffer[outV2Offset] = x * inM2Buffer[inM2Offset] + y * inM2Buffer[inM2Offset + 2];
 	outV2Buffer[outV2Offset + 1] = x * inM2Buffer[inM2Offset + 1] + y * inM2Buffer[inM2Offset + 3];
 
-	return inM2Buffer;
+	return outV2Buffer;
 };

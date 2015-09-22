@@ -251,14 +251,14 @@ neo3d.Quat.prototype.transformVec3 = function(outV3, inV3)
 {
 	//This quaternion must be a unit quaternion
 	neo3d.Quat.bufferTransformVec3(outV3.buffer, 0, this.buffer, 0, inV3.buffer, 0);
-	return this;
+	return outV3;
 };
 
 neo3d.Quat.prototype.transformVec3InPlace = function(v3)
 {
 	//This quaternion must be a unit quaternion
 	neo3d.Quat.bufferTransformVec3(v3.buffer, 0, this.buffer, 0, v3.buffer, 0);
-	return this;
+	return v3;
 };
 
 neo3d.Quat.prototype.lerp = function(q0, t, q1)
@@ -891,7 +891,7 @@ neo3d.Quat.bufferTransformVec3 = function(outV3Buffer, outV3Offset, inQBuffer, i
 	outV3Buffer[outV3Offset + 1] = qw * ry + rw * qy + qz * rx - rz * qx;
 	outV3Buffer[outV3Offset + 2] = qw * rz + rw * qz + qx * ry - rx * qy;
 
-	return inQBuffer;
+	return outV3Buffer;
 };
 
 neo3d.Quat.bufferSlerp = function(outBuffer, outOffset, inBufferQ0, inOffsetQ0, t, inBufferQ1, inOffsetQ1)
