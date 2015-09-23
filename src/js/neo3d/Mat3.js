@@ -602,6 +602,8 @@ neo3d.Mat3.bufferNormalizeTRSTransfo2D = function(outBuffer, outOffset, inBuffer
 	outBuffer[outOffset + 4] = buffer[3] * sy;
 	outBuffer[outOffset + 5] = 0.0;
 
+	outBuffer[outOffset + 6] = inBuffer[inOffset + 6];
+	outBuffer[outOffset + 7] = inBuffer[inOffset + 7];
 	outBuffer[outOffset + 8] = 1.0;
 
 	return outBuffer;

@@ -490,6 +490,9 @@ neo3d.Mat4.bufferNormalizeTRSTransfo = function(outBuffer, outOffset, inBuffer, 
 	outBuffer[outOffset + 10] = buffer[8] * sz;
 	outBuffer[outOffset + 11] = 0.0;
 
+	outBuffer[outOffset + 12] = inBuffer[inOffset + 12];
+	outBuffer[outOffset + 13] = inBuffer[inOffset + 13];
+	outBuffer[outOffset + 14] = inBuffer[inOffset + 14];
 	outBuffer[outOffset + 15] = 1.0;
 
 	return outBuffer;
@@ -908,21 +911,21 @@ neo3d.Mat4.bufferBuildFPSView = function(outBuffer, outOffset, eyeV3Buffer, eyeV
 	var xEye = eyeV3Buffer[eyeV3Offset],
 		yEye = eyeV3Buffer[eyeV3Offset + 1],
 		zEye = eyeV3Buffer[eyeV3Offset + 2],
-		x0 = neo3d.cos(yawAngle), //x1 = 0.0
-		x2 = -neo3d.sin(yawAngle),
-		y1 = neo3d.cos(pitchAngle),
-		z1 = -neo3d.sin(pitchAngle),
-		y0 = x2 * z1,
-		y2 = -x0 * z1,
-		z0 = -x2 * y1,
+		x0 = neo3d.cos(yawAngle),
+		z0 = neo3d.sin(yawAngle),
+		y1 = neo3d.cos(pitchAngle), //y0 = 0.0
+		y2 = neo3d.sin(pitchAngle),
+		x1 = z0 * y2,
+		x2 = -z0 * y1,
+		z1 = -x0 * y2,
 		z2 = x0 * y1;
 
 	outBuffer[outOffset] = x0;
-	outBuffer[outOffset + 1] = y0;
+	outBuffer[outOffset + 1] = 0.0;
 	outBuffer[outOffset + 2] = z0;
 	outBuffer[outOffset + 3] = 0.0;
 
-	outBuffer[outOffset + 4] = 0.0;
+	outBuffer[outOffset + 4] = x1;
 	outBuffer[outOffset + 5] = y1;
 	outBuffer[outOffset + 6] = z1;
 	outBuffer[outOffset + 7] = 0.0;
@@ -932,8 +935,8 @@ neo3d.Mat4.bufferBuildFPSView = function(outBuffer, outOffset, eyeV3Buffer, eyeV
 	outBuffer[outOffset + 10] = z2;
 	outBuffer[outOffset + 11] = 0.0;
 
-	outBuffer[outOffset + 12] = -(x0 * xEye + x2 * zEye);
-	outBuffer[outOffset + 13] = -(y0 * xEye + y1 * yEye + y2 * zEye);
+	outBuffer[outOffset + 12] = -(x0 * xEye + x1 * yEye + x2 * zEye);
+	outBuffer[outOffset + 13] = -(y1 * yEye + y2 * zEye);
 	outBuffer[outOffset + 14] = -(z0 * xEye + z1 * yEye + z2 * zEye);
 	outBuffer[outOffset + 15] = 1.0;
 

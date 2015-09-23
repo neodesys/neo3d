@@ -11,6 +11,8 @@ Disfract is an experimental journey into the fractal world.
 2. [How to contribute](#how-to-contribute)
 3. [License](#license)
 
+--------------------------------------------------------------------------------
+
 How to build
 ------------
 
@@ -29,9 +31,15 @@ $ git clone https://github.com/neodesys/disfract.git Disfract
 $ cd Disfract/ide
 $ npm install
 $ grunt
-$ cd ../build
-$ xdg-open index.html
+$ xdg-open ../build/index.html
 ```
+
+To execute Disfract unit tests, go to the *ide* sub-directory and call
+`npm test`.  
+You can also execute unit tests continuously on file change by calling
+`./node_modules/karma/bin/karma start` from the same *ide* sub-directory.
+
+--------------------------------------------------------------------------------
 
 How to contribute
 -----------------
