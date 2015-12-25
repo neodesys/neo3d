@@ -19,6 +19,10 @@
 
 "use strict";
 
+/**
+ * @requires neo3d/PlaneMesh.js
+ * @requires FractalShader.js
+ */
 (function(disfract)
 {
 	function _switchDrawingState(button)
@@ -35,6 +39,59 @@
 		}
 	}
 
+	var _fractalShader = new disfract.FractalShader();
+
+	var _fullscreenPlane = new neo3d.PlaneMesh();
+
+	//TODO: implement user interactions
+	var _renderer = {
+		_center: [-0.1528, 1.0397],
+
+		_scale: 1.0,
+
+		_aspectRatio: 1.0,
+
+		onInitContext: function(gl, bContextLost)
+		{
+			gl.clearColor(0, 0, 0, 1);
+			_fractalShader.init(gl, bContextLost);
+			_fullscreenPlane.init(gl, bContextLost);
+			_fractalShader.bind();
+		},
+
+		onSurfaceResized: function(gl, width, height)
+		{
+			gl.viewport(0, 0, width, height);
+			this._aspectRatio = width / height;
+		},
+
+		onDrawFrame: function(gl)
+		{
+			this._scale += 0.005 * this._scale;
+			if (this._scale > 200000.0)
+				this._scale = 1.0;
+
+			var size = [4.0, 4.0];
+			if (this._scale > 0.0)
+			{
+				var s = 1.0 / this._scale;
+				size[0] *= s;
+				size[1] *= s;
+			}
+
+			if (this._aspectRatio >= 1.0)
+				size[0] *= this._aspectRatio;
+			else if (this._aspectRatio > 0.0)
+				size[1] /= this._aspectRatio;
+
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
+			_fractalShader.setPos(this._center[0], this._center[1]);
+			_fractalShader.setSize(size[0], size[1]);
+			_fractalShader.drawMesh(_fullscreenPlane);
+		}
+	};
+
 	disfract.main = function()
 	{
 		var switchDrawingButton = document.getElementById("switchDrawing");
@@ -47,47 +104,7 @@
 		};
 		showFPS();
 
-		var rdr = {
-			onInitContext: function(gl)
-			{
-				//TODO: onInitContext
-				gl.clearColor(0, 0, 0, 1);
-				gl.enable(gl.DEPTH_TEST);
-
-				var vtxShaderSrc =
-					"attribute vec3 aVtxPosition;\n" +
-					"uniform mat4 uPMVMatrix;\n" +
-					"void main() {\n" +
-					"gl_Position = uPMVMatrix * vec4(aVtxPosition, 1.0);\n}";
-
-				var fragShaderSrc =
-					"precision mediump float;\n" +
-					"void main() {\n" +
-					"gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n}";
-
-				var prog = neo3d.loadProgram(gl, vtxShaderSrc, fragShaderSrc);
-				if (prog)
-				{
-					prog.vtxPosition = gl.getAttribLocation(prog, "aVtxPosition");
-					prog.pmvMatrix = gl.getUniformLocation(prog, "uPMVMatrix");
-				}
-
-				this.prog = prog;
-			},
-
-			onSurfaceResized: function(gl, width, height)
-			{
-				gl.viewport(0, 0, width, height);
-			},
-
-			onDrawFrame: function(gl)
-			{
-				//TODO: onDrawFrame
-				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-			}
-		};
-
-		var rdrSurf = neo3d.createRenderingSurface("drawSurf", rdr);
+		var rdrSurf = neo3d.createRenderingSurface("drawSurf", _renderer, true);
 		if (rdrSurf)
 		{
 			neo3d.startDrawing();

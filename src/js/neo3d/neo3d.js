@@ -23,8 +23,19 @@
 {
 	var _glSurfaces = [];
 
+	var GL_CTX_STATE = Object.freeze({
+		FIRST_INIT: 0,
+		CTX_LOST: 1,
+		NEED_INIT_AFTER_LOST: 2,
+		READY: 3
+	});
+
 	var RenderingSurface = function(gl, rdr)
 	{
+		//"gl" and "rdr" parameters are guaranteed to be valid.
+		if (gl.getExtension("OES_element_index_uint"))
+			gl._bExtendedIndexType = true;
+
 		this._gl = gl;
 		this._rdr = rdr;
 		this._autoDraw = true;
@@ -32,20 +43,21 @@
 		this._lastDrawingBufferWidth = 0;
 		this._lastDrawingBufferHeight = 0;
 
-		this._glContextNeedsInit = true;
-		this._glContextLost = false;
+		this._glCtxState = GL_CTX_STATE.FIRST_INIT;
 
 		var that = this;
 		this._ctxLostListener = function(event)
 		{
 			event.preventDefault();
-			that._glContextLost = true;
+			that._glCtxState = GL_CTX_STATE.CTX_LOST;
+
+			if (that._gl && that._gl._activeShader)
+				that._gl._activeShader.unbind();
 		};
 
 		this._ctxRestoredListener = function()
 		{
-			that._glContextNeedsInit = true;
-			that._glContextLost = false;
+			that._glCtxState = GL_CTX_STATE.NEED_INIT_AFTER_LOST;
 		};
 
 		gl.canvas.addEventListener("webglcontextlost", this._ctxLostListener);
@@ -81,15 +93,15 @@
 
 	RenderingSurface.prototype._renderFrame = function(t)
 	{
-		if (this._glContextLost || !this._gl)
+		if (!this._gl || (this._glCtxState === GL_CTX_STATE.CTX_LOST))
 			return;
 
-		if (this._glContextNeedsInit)
+		if (this._glCtxState !== GL_CTX_STATE.READY)
 		{
-			this._glContextNeedsInit = false;
 			this._lastDrawingBufferWidth = 0;
 			this._lastDrawingBufferHeight = 0;
-			this._rdr.onInitContext(this._gl);
+			this._rdr.onInitContext(this._gl, (this._glCtxState === GL_CTX_STATE.NEED_INIT_AFTER_LOST));
+			this._glCtxState = GL_CTX_STATE.READY;
 		}
 
 		if ((this._lastDrawingBufferWidth !== this._gl.drawingBufferWidth) ||
@@ -179,48 +191,7 @@
 			_drawRequestID = _requestAnimationFrame(_continuousFrameDrawing);
 	}
 
-	function _loadShader(gl, type, src)
-	{
-		var shader = gl.createShader(type);
-		gl.shaderSource(shader, src);
-		gl.compileShader(shader);
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-		{
-			if (!gl.isContextLost())
-			{
-				console.warn("cannot compile shader:\n" + gl.getShaderInfoLog(shader));
-				gl.deleteShader(shader);
-			}
-
-			shader = null;
-		}
-
-		return shader;
-	}
-
-	function _loadBuffer(gl, target, data, usage)
-	{
-		var vbo = gl.createBuffer();
-		gl.bindBuffer(target, vbo);
-		gl.bufferData(target, data, usage);
-		gl.bindBuffer(target, null);
-
-		var error = gl.getError();
-		if (error !== gl.NO_ERROR)
-		{
-			if (error !== gl.CONTEXT_LOST_WEBGL)
-			{
-				console.warn("cannot load buffer (err: #" + error + ")");
-				gl.deleteBuffer(vbo);
-			}
-
-			vbo = null;
-		}
-
-		return vbo;
-	}
-
-	neo3d.createRenderingSurface = function(canvas, rdr)
+	neo3d.createRenderingSurface = function(canvas, rdr, bAntialias, bAlpha)
 	{
 		if ((typeof(canvas) === "string") && canvas)
 			canvas = document.getElementById(canvas);
@@ -241,7 +212,7 @@
 
 		try
 		{
-			var gl = canvas.getContext("webgl");
+			var gl = canvas.getContext("webgl", {antialias: (bAntialias === true), alpha: (bAlpha === true)});
 			if (gl instanceof WebGLRenderingContext)
 			{
 				var rdrSurf = new RenderingSurface(gl, rdr);
@@ -303,77 +274,9 @@
 		return _fps;
 	};
 
-	neo3d.loadVertexShader = function(gl, src)
-	{
-		if ((gl instanceof WebGLRenderingContext) &&
-			src && (typeof(src) === "string"))
-			return _loadShader(gl, gl.VERTEX_SHADER, src);
-		else
-			return null;
-	};
-
-	neo3d.loadFragmentShader = function(gl, src)
-	{
-		if ((gl instanceof WebGLRenderingContext) &&
-			src && (typeof(src) === "string"))
-			return _loadShader(gl, gl.FRAGMENT_SHADER, src);
-		else
-			return null;
-	};
-
-	neo3d.linkProgram = function(gl, vertexShader, fragmentShader)
-	{
-		var prog = null;
-		if ((gl instanceof WebGLRenderingContext) &&
-			(vertexShader instanceof WebGLShader) &&
-			(fragmentShader instanceof WebGLShader))
-		{
-			prog = gl.createProgram();
-			gl.attachShader(prog, vertexShader);
-			gl.attachShader(prog, fragmentShader);
-			gl.linkProgram(prog);
-			if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
-			{
-				if (!gl.isContextLost())
-				{
-					console.warn("cannot link program:\n" + gl.getProgramInfoLog(prog));
-					gl.deleteProgram(prog);
-				}
-
-				prog = null;
-			}
-		}
-
-		return prog;
-	};
-
-	neo3d.loadProgram = function(gl, vertexShaderSrc, fragmentShaderSrc)
-	{
-		var vtxShader = this.loadVertexShader(gl, vertexShaderSrc);
-		if (vtxShader)
-		{
-			var fragShader = this.loadFragmentShader(gl, fragmentShaderSrc);
-			if (fragShader)
-			{
-				var prog = this.linkProgram(gl, vtxShader, fragShader);
-
-				//Flag vertex and fragment shaders for deletion, so they
-				//will be automatically deleted with the program
-				gl.deleteShader(vtxShader);
-				gl.deleteShader(fragShader);
-
-				if (prog)
-					return prog;
-			}
-			else
-				gl.deleteShader(vtxShader);
-		}
-
-		return null;
-	};
-
 	neo3d.load2DTexture = function(gl, data, noRepeat, noMipmap)
 	{
+		//TODO: move to a separated neo3d.Texture class
 		if ((gl instanceof WebGLRenderingContext) &&
 			(((data instanceof HTMLImageElement) && data.complete) ||
 			 (data instanceof ImageData) ||
@@ -429,25 +332,5 @@
 		}
 
 		return null;
-	};
-
-	neo3d.loadStaticArrayBuffer = function(gl, data)
-	{
-		if ((gl instanceof WebGLRenderingContext) &&
-			((data instanceof ArrayBuffer) ||
-			 (data instanceof ArrayBufferView)))
-			return _loadBuffer(gl, gl.ARRAY_BUFFER, data, gl.GL_STATIC_DRAW);
-		else
-			return null;
-	};
-
-	neo3d.loadStaticElementBuffer = function(gl, data)
-	{
-		if ((gl instanceof WebGLRenderingContext) &&
-			((data instanceof ArrayBuffer) ||
-			 (data instanceof ArrayBufferView)))
-			return _loadBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, data, gl.GL_STATIC_DRAW);
-		else
-			return null;
 	};
 })(window.neo3d = window.neo3d || {});
