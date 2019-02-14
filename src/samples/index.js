@@ -30,13 +30,33 @@
 //- hd: set to true to use an HD back surface for rendering
 //      (1920x1080 instead of 640x360)
 //- open: set to true to open the sample by default when loading the page
+//
+//Each sample CAN also export any of the 2 following functions:
+//- onStart(): will be called by framework when sample is started
+//- onStop(): will be called by framework when sample is stopped
 
 //Ask webpack to automatically require all samples
-var context = require.context(".", true, /^\.\/[^\/]+\/index\.js$/);
-var samples = [];
-context.keys().forEach(function(key)
+var _context = require.context(".", true, /^\.\/[^\/]+\/index\.js$/);
+var _samples = [];
+function _emptyFunc() { }
+_context.keys().forEach(function(key)
 {
-    samples.push(context(key));
+    var sample = _context(key);
+    if (sample.disabled !== true)
+    {
+        if (typeof (sample.onStart) !== "function")
+        {
+            sample.onStart = _emptyFunc;
+        }
+
+        if (typeof (sample.onStop) !== "function")
+        {
+            sample.onStop = _emptyFunc;
+        }
+
+        sample._rdrSurf = null;
+        _samples.push(sample);
+    }
 });
 
 var neo3d = require("neo3d");
@@ -53,11 +73,27 @@ window.addEventListener("load", function()
         {
             neo3d.stopDrawing();
             switchDrawingButton.value = "Start";
+
+            _samples.forEach(function(sample)
+            {
+                if (sample._rdrSurf && sample._rdrSurf.isAutoDrawing())
+                {
+                    sample.onStop();
+                }
+            });
         }
         else
         {
             neo3d.startDrawing();
             switchDrawingButton.value = "Stop";
+
+            _samples.forEach(function(sample)
+            {
+                if (sample._rdrSurf && sample._rdrSurf.isAutoDrawing())
+                {
+                    sample.onStart();
+                }
+            });
         }
     });
 
@@ -71,46 +107,51 @@ window.addEventListener("load", function()
     neo3d.startDrawing();
     showFPS();
 
-    function toggleSample(e)
+    function toggleSample(sample, e)
     {
         e.preventDefault();
 
-        var article = e.target.parentNode.parentNode;
-        var rdrSurf = neo3d.findRenderingSurface(article.getElementsByTagName("canvas")[0]);
-        if (rdrSurf)
+        if (sample._rdrSurf)
         {
-            if (rdrSurf.isAutoDrawing())
+            var article = e.target.parentNode.parentNode;
+
+            if (sample._rdrSurf.isAutoDrawing())
             {
-                rdrSurf.setAutoDrawing(false);
+                sample._rdrSurf.setAutoDrawing(false);
                 article.classList.add("closed");
+
+                if (neo3d.isDrawing())
+                {
+                    sample.onStop();
+                }
             }
             else
             {
-                rdrSurf.setAutoDrawing(true);
+                sample._rdrSurf.setAutoDrawing(true);
                 article.classList.remove("closed");
+
+                if (neo3d.isDrawing())
+                {
+                    sample.onStart();
+                }
             }
         }
     }
 
     var samplesRoot = document.getElementById("samplesRoot");
-    samples.forEach(function(module)
+    _samples.forEach(function(sample)
     {
-        if (module.disabled === true)
-        {
-            return;
-        }
-
         var toggle = document.createElement("a");
         toggle.href = "#";
         toggle.className = "toggle";
-        toggle.innerText = module.getName();
-        toggle.addEventListener("click", toggleSample);
+        toggle.innerText = sample.getName();
+        toggle.addEventListener("click", toggleSample.bind(undefined, sample));
 
         var header = document.createElement("h2");
         header.appendChild(toggle);
 
         var drawSurf = document.createElement("canvas");
-        if (module.hd === true)
+        if (sample.hd === true)
         {
             drawSurf.width = 1920;
             drawSurf.height = 1080;
@@ -126,14 +167,18 @@ window.addEventListener("load", function()
         article.appendChild(drawSurf);
 
         samplesRoot.appendChild(article);
-        module.main(drawSurf);
+        sample.main(drawSurf);
 
-        var rdrSurf = neo3d.findRenderingSurface(drawSurf);
-        if (rdrSurf)
+        sample._rdrSurf = neo3d.findRenderingSurface(drawSurf);
+        if (sample._rdrSurf)
         {
-            if (module.open !== true)
+            if (sample.open === true)
             {
-                rdrSurf.setAutoDrawing(false);
+                sample.onStart();
+            }
+            else
+            {
+                sample._rdrSurf.setAutoDrawing(false);
                 article.classList.add("closed");
             }
         }

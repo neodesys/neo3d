@@ -22,6 +22,9 @@
 var neo3d = require("neo3d");
 var OscilloShader = require("./OscilloShader");
 
+var _audioSample = new Audio(require("./rumba.mp3"));
+_audioSample.loop = true;
+
 var _oscilloShader = new OscilloShader();
 var _fullscreenPlane = new neo3d.PlaneMesh();
 
@@ -101,5 +104,15 @@ module.exports = {
     main: function(drawSurf)
     {
         neo3d.createRenderingSurface(drawSurf, _renderer, true);
+    },
+
+    onStart: function()
+    {
+        _audioSample.play();
+    },
+
+    onStop: function()
+    {
+        _audioSample.pause();
     }
 };

@@ -58,6 +58,15 @@ const webpackConfig = module.exports = {
             {
                 test: /\.(frag|vert)$/,
                 use: ["webpack-glsl-loader", "remove-comments-loader"]
+            },
+            {
+                test: /\.mp3$/,
+                use: [{
+                    loader: "file-loader",
+                    options: {
+                        name: "res/[name].[ext]"
+                    }
+                }]
             }
         ]
     },
@@ -67,7 +76,11 @@ const webpackConfig = module.exports = {
             template: "./src/samples/index.html",
             inject: "head"
         })
-    ]
+    ],
+
+    performance: {
+        hints: false
+    }
 };
 
 if (!isDevServer)
