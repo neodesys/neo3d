@@ -2,3 +2,7 @@
 !.gitignore
 !CNAME
 !index.html
+!neo3d-*.min.js
+!neo3d-*.min.js.map
+!samples-*.min.js
+!samples-*.min.js.map
