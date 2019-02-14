@@ -50,12 +50,12 @@ var Mesh = module.exports = function(primitiveType, indexType)
 
 Mesh.AttribConfig = function()
 {
-    this.vboIdx = 0;			//associated VBO index in _attribVBOList array
+    this.vboIdx = 0;          //associated VBO index in _attribVBOList array
     this.componentType = Mesh.COMPONENT_TYPE.FLOAT; //one of Mesh.COMPONENT_TYPE values
-    this.nbComponents = 3;		//from 1 to 4
-    this.offset = 0;			//in bytes
-    this.stride = 0;			//in bytes, maximum stride in WebGL is 255
-    this.bNormalized = false;	//if true, values stored in an integer format are mapped to [-1.f, 1.f] or [0.f, 1.f]
+    this.nbComponents = 3;    //from 1 to 4
+    this.offset = 0;          //in bytes
+    this.stride = 0;          //in bytes, maximum stride in WebGL is 255
+    this.bNormalized = false; //if true, values stored in an integer format are mapped to [-1.f, 1.f] or [0.f, 1.f]
 };
 
 Mesh.PRIMITIVE_TYPE = Object.freeze({
