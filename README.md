@@ -1,50 +1,21 @@
-Disfract
-========
+Neo3D
+=====
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat)](/LICENSE)
 
-Disfract is an experimental journey into the fractal world.
+Neo3D is an experimental low-level 3D rendering engine based on WebGL.
 
 **Contents**
 
-1. [How to build](#how-to-build)
-2. [How to contribute](#how-to-contribute)
-3. [License](#license)
-
---------------------------------------------------------------------------------
-
-How to build
-------------
-
-You must have [Node.js](https://nodejs.org/) with `npm` installed.  
-You also need `grunt-cli` which can be installed directly with `npm` like this:
-
-```
-$ npm install -g grunt-cli
-```
-
-To build Disfract itself, clone this repository, install dependencies using
-`npm` and call `grunt`.
-
-```
-$ git clone https://github.com/neodesys/disfract.git Disfract
-$ cd Disfract/ide
-$ npm install
-$ grunt
-$ xdg-open ../build/index.html
-```
-
-To execute Disfract unit tests, go to the *ide* sub-directory and call
-`npm test`.  
-You can also execute unit tests continuously on file change by calling
-`./node_modules/karma/bin/karma start` from the same *ide* sub-directory.
+1. [How to contribute](#how-to-contribute)
+2. [License](#license)
 
 --------------------------------------------------------------------------------
 
 How to contribute
 -----------------
 
-You are welcome to contribute to Disfract.
+You are welcome to contribute to Neo3D.
 
 If you find a bug, have an issue or great ideas to make it better, please
 [post an issue](https://guides.github.com/features/issues/).
@@ -61,10 +32,10 @@ You can find detailed information about how to contribute in
 License
 -------
 
-Disfract is released under the [GPLv3 License](/LICENSE).
+Neo3D is released under the [GPLv3 License](/LICENSE).
 
 ```
-Disfract
+Neo3D
 
 Copyright (C) 2015, Loïc Le Page
 

@@ -1,0 +1,43 @@
+{
+  "name": "neo3d",
+  "version": "0.0.0",
+  "license": "GPL-3.0",
+  "author": "Copyright (C) 2015, Loïc Le Page",
+  "private": true,
+  "repository": "github:neodesys/neo3d",
+  "devDependencies": {
+    "html-webpack-plugin": "3.2.0",
+    "jshint": "2.10.1",
+    "jshint-stylish": "2.2.1",
+    "qunit": "2.9.1",
+    "remove-comments-loader": "0.1.2",
+    "rimraf": "2.6.3",
+    "webpack": "4.29.3",
+    "webpack-cli": "3.2.3",
+    "webpack-dev-server": "3.1.14",
+    "webpack-glsl-loader": "1.0.1"
+  },
+  "scripts": {
+    "jshint": "jshint --reporter=node_modules/jshint-stylish src test",
+    "build": "rimraf dist && webpack --bail --progress",
+    "dev": "webpack-dev-server --open",
+    "test": "qunit test/*"
+  },
+  "jshintConfig": {
+    "browser": true,
+    "curly": true,
+    "eqeqeq": true,
+    "esversion": 5,
+    "nonbsp": true,
+    "nonew": true,
+    "strict": "global",
+    "undef": true,
+    "unused": true,
+    "predef": [
+      "module",
+      "require",
+      "ImageData",
+      "QUnit"
+    ]
+  }
+}
