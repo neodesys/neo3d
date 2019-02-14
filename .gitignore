@@ -5,6 +5,7 @@
 # IDE auto-generated files
 .idea/
 .vs/
+.vscode/
 ipch/
 nbproject/
 nbbuild/
