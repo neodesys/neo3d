@@ -1,5 +1,5 @@
 /**
- * Disfract
+ * Neo3D
  *
  * Copyright (C) 2015, Loïc Le Page
  *
@@ -19,40 +19,18 @@
 
 "use strict";
 
-(function(neo3d)
-{
-	neo3d.EPSILON = 1e-6;
+var neo3d = require("./neo3d");
 
-	neo3d.EPSILON2 = neo3d.EPSILON * neo3d.EPSILON;
+neo3d.Shader = require("./Shader");
+neo3d.math = require("./math");
+neo3d.Vec2 = require("./Vec2");
+neo3d.Vec3 = require("./Vec3");
+neo3d.Vec4 = require("./Vec4");
+neo3d.Quat = require("./Quat");
+neo3d.Mat2 = require("./Mat2");
+neo3d.Mat3 = require("./Mat3");
+neo3d.Mat4 = require("./Mat4");
+neo3d.Mesh = require("./Mesh");
+neo3d.PlaneMesh = require("./PlaneMesh");
 
-	neo3d.PI = Math.PI;
-
-	neo3d.HALF_PI = 0.5 * neo3d.PI;
-
-	neo3d.TWO_PI = 2.0 * neo3d.PI;
-
-	neo3d.RAD2DEG = 180.0 / neo3d.PI;
-
-	neo3d.DEG2RAD = neo3d.PI / 180.0;
-
-	neo3d.abs = Math.abs;
-
-	neo3d.sqrt = Math.sqrt;
-
-	neo3d.cos = Math.cos;
-
-	neo3d.acos = Math.acos;
-
-	neo3d.sin = Math.sin;
-
-	neo3d.tan = Math.tan;
-
-	neo3d.atan2 = Math.atan2;
-
-	neo3d.log = Math.log;
-
-	neo3d.exp = Math.exp;
-
-	neo3d.pow = Math.pow;
-
-})(window.neo3d = window.neo3d || {});
+window.neo3d = module.exports = neo3d;
