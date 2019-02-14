@@ -22,20 +22,6 @@
 var neo3d = require("neo3d");
 var FractalShader = require("./FractalShader");
 
-function _switchDrawingState(button)
-{
-    if (neo3d.isDrawing())
-    {
-        neo3d.stopDrawing();
-        button.value = "Start";
-    }
-    else
-    {
-        neo3d.startDrawing();
-        button.value = "Stop";
-    }
-}
-
 var _fractalShader = new FractalShader();
 var _fullscreenPlane = new neo3d.PlaneMesh();
 
@@ -95,37 +81,13 @@ var _renderer = {
 };
 
 module.exports = {
-    main: function(drawSurfaceId)
+    getName: function()
     {
-        var div = document.createElement("div");
-        div.style.marginBottom = "20px";
-        div.innerHTML = '<input type="button" id="switchDrawingButton" value="Stop" style="cursor: pointer;">&nbsp;<span id="fpsSpan"></input>';
+        return "Disfract";
+    },
 
-        var drawSurf = document.getElementById(drawSurfaceId);
-        drawSurf.parentNode.insertBefore(div, drawSurf);
-
-        var switchDrawingButton = document.getElementById("switchDrawingButton");
-        var fpsSpan = document.getElementById("fpsSpan");
-
-        var showFPS = function()
-        {
-            fpsSpan.innerText = neo3d.getFPS().toFixed(3) + " fps";
-            setTimeout(showFPS, 1000);
-        };
-        showFPS();
-
-        var rdrSurf = neo3d.createRenderingSurface(drawSurf, _renderer, true);
-        if (rdrSurf)
-        {
-            neo3d.startDrawing();
-            switchDrawingButton.addEventListener("click", function()
-            {
-                _switchDrawingState(switchDrawingButton);
-            });
-        }
-        else
-        {
-            window.alert("WebGL is not available");
-        }
+    main: function(drawSurf)
+    {
+        neo3d.createRenderingSurface(drawSurf, _renderer, true);
     }
 };

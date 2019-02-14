@@ -21,7 +21,8 @@
     "jshint": "jshint --reporter=node_modules/jshint-stylish src test",
     "build": "rimraf dist && webpack --bail --progress",
     "dev": "webpack-dev-server --open",
-    "test": "qunit test/*"
+    "test": "qunit test/*",
+    "make": "npm run jshint && npm test && npm run build"
   },
   "jshintConfig": {
     "browser": true,
