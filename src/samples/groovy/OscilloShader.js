@@ -38,7 +38,8 @@ var OscilloShader = module.exports = function()
 
     this._uniformLoc = {
         aspectRatios: -1,
-        oscilloData: -1
+        timeData: -1,
+        freqData: -1
     };
 };
 
@@ -49,14 +50,16 @@ OscilloShader.prototype._initShaderLocations = function()
 {
     this._attribLoc.vtxPosition = this._gl.getAttribLocation(this._prog, "aVtxPosition");
     this._uniformLoc.aspectRatios = this._gl.getUniformLocation(this._prog, "uAspectRatios");
-    this._uniformLoc.oscilloData = this._gl.getUniformLocation(this._prog, "uOscilloData");
+    this._uniformLoc.timeData = this._gl.getUniformLocation(this._prog, "uTimeData");
+    this._uniformLoc.freqData = this._gl.getUniformLocation(this._prog, "uFreqData");
 };
 
 OscilloShader.prototype._bindShader = function()
 {
     this._gl.enableVertexAttribArray(this._attribLoc.vtxPosition);
     this._gl.uniform2fv(this._uniformLoc.aspectRatios, this._aspectRatios.buffer);
-    this._gl.uniform1i(this._uniformLoc.oscilloData, 0);
+    this._gl.uniform1i(this._uniformLoc.timeData, 0);
+    this._gl.uniform1i(this._uniformLoc.freqData, 1);
     return true;
 };
 

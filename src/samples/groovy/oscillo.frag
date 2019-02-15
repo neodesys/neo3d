@@ -19,7 +19,8 @@
 
 precision highp float;
 
-uniform sampler2D uOscilloData;
+uniform sampler2D uTimeData;
+uniform sampler2D uFreqData;
 
 //Plane coords are between -1.0 and 1.0 with direct orientation
 varying highp vec2 planeCoords;
@@ -38,7 +39,7 @@ vec4 drawCircle(vec3 color, float thickness, float radius, float maxVar)
     float l = length(planeCoords);
     float a = 0.5 * (1.0 + atan(planeCoords.y, planeCoords.x) / PI);
 
-    float offset = texture2D(uOscilloData, vec2(a, 0.5)).a;
+    float offset = texture2D(uTimeData, vec2(a, 0.5)).a;
     offset = radius + maxVar * (2.0 * offset - 1.0);
 
     float t = getLineIntensity(0.5 + (l - offset) / thickness);
@@ -47,5 +48,5 @@ vec4 drawCircle(vec3 color, float thickness, float radius, float maxVar)
 
 void main()
 {
-    gl_FragColor = drawCircle(vec3(0.8, 0.8, 0.2), 0.05, 0.85, 0.025);
+    gl_FragColor = drawCircle(vec3(0.8, 0.8, 0.2), 0.05, 0.85, 0.2);
 }

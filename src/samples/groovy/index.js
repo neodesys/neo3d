@@ -21,29 +21,43 @@
 
 var neo3d = require("neo3d");
 var OscilloShader = require("./OscilloShader");
+var AudioSource = require("./AudioSource");
 
-var _audioSample = new Audio(require("./rumba.mp3"));
-_audioSample.loop = true;
-
+var _audioSample = new AudioSource(require("./rumba.mp3"));
 var _oscilloShader = new OscilloShader();
 var _fullscreenPlane = new neo3d.PlaneMesh();
 
-var _oscilloData = new Uint8Array(256);
-var _oscilloDataTex = null;
+var _timeDataTex = null;
+var _freqDataTex = null;
 
-function _createAndBindOscilloTexture(gl, bContextLost)
+function _createAndBindTextures(gl, bContextLost)
 {
-    if (!bContextLost && _oscilloDataTex)
+    if (!bContextLost && _timeDataTex && _freqDataTex)
     {
         return;
     }
 
-    _oscilloDataTex = gl.createTexture();
+    _timeDataTex = gl.createTexture();
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, _oscilloDataTex);
+    gl.bindTexture(gl.TEXTURE_2D, _timeDataTex);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _oscilloData.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, _oscilloData);
+    var data = _audioSample.fetchTimeData();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, data.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, data);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    _freqDataTex = gl.createTexture();
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, _freqDataTex);
+
+    data = _audioSample.fetchFreqData();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, data.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, data);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -52,17 +66,15 @@ function _createAndBindOscilloTexture(gl, bContextLost)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 }
 
-function _updateOscilloTex(gl)
+function _updateTextures(gl)
 {
-    //TODO: use audio waveform to update _oscilloData
-    var idx = _oscilloData.length;
-    while (--idx > 0)
-    {
-        _oscilloData[idx] = _oscilloData[idx - 1];
-    }
-    _oscilloData[0] = 127.5 * (1.0 + neo3d.math.sin(16.0 * new Date().getMilliseconds()));
+    gl.activeTexture(gl.TEXTURE0);
+    var data = _audioSample.fetchTimeData();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, data.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, data);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, _oscilloData.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, _oscilloData);
+    gl.activeTexture(gl.TEXTURE1);
+    data = _audioSample.fetchFreqData();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, data.length, 1, 0, gl.ALPHA, gl.UNSIGNED_BYTE, data);
 }
 
 var _renderer = {
@@ -75,7 +87,7 @@ var _renderer = {
         _oscilloShader.init(gl, bContextLost);
         _fullscreenPlane.init(gl, bContextLost);
 
-        _createAndBindOscilloTexture(gl, bContextLost);
+        _createAndBindTextures(gl, bContextLost);
         _oscilloShader.bind();
     },
 
@@ -88,7 +100,7 @@ var _renderer = {
     onDrawFrame: function(gl)
     {
         gl.clear(gl.COLOR_BUFFER_BIT);
-        _updateOscilloTex(gl);
+        _updateTextures(gl);
         _oscilloShader.drawMesh(_fullscreenPlane);
     }
 };
