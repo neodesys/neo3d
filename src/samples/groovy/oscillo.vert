@@ -25,6 +25,6 @@ varying highp vec2 planeCoords;
 
 void main()
 {
-    gl_Position = vec4(aVtxPosition.xy * uAspectRatios, aVtxPosition.z, 1.0);
-    planeCoords = aVtxPosition.xy;
+    gl_Position = vec4(aVtxPosition, 1.0);
+    planeCoords = aVtxPosition.xy / uAspectRatios;
 }

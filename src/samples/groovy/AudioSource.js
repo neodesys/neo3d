@@ -48,6 +48,7 @@ var AudioSource = module.exports = function(url)
                 {
                     that._analyser = _audioCtx.createAnalyser();
                     that._analyser.fftSize = that._fftSize;
+                    that._analyser.smoothingTimeConstant = 0.5;
 
                     var source = _audioCtx.createMediaElementSource(that._audioSample);
                     source.connect(that._analyser);

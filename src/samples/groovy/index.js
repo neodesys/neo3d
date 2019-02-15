@@ -80,7 +80,7 @@ function _updateTextures(gl)
 var _renderer = {
     onInitContext: function(gl, bContextLost)
     {
-        gl.clearColor(0, 0, 0, 1);
+        gl.clearColor(0.2, 0.15, 0.2, 1.0);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 

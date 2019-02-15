@@ -22,7 +22,7 @@ precision highp float;
 uniform sampler2D uTimeData;
 uniform sampler2D uFreqData;
 
-//Plane coords are between -1.0 and 1.0 with direct orientation
+//Plane coords are relative to a central square between -1.0 and 1.0 with direct orientation
 varying highp vec2 planeCoords;
 
 const float PI = 3.1415926535897932384626433832795;
@@ -31,22 +31,24 @@ float getLineIntensity(float t)
 {
     t = max(t, 0.0) * step(-1.0, -t);
     t = sin(t * PI);
-    return t;
+    return t * t;
 }
 
-vec4 drawCircle(vec3 color, float thickness, float radius, float maxVar)
+//radialCoords angle (y) must be normalized between 0.0 and 1.0
+float getCircleIntensity(vec2 radialCoords, float lineThickness, float circleRadius, float maxOffset)
 {
-    float l = length(planeCoords);
-    float a = 0.5 * (1.0 + atan(planeCoords.y, planeCoords.x) / PI);
+    float offset = texture2D(uTimeData, vec2(radialCoords.y, 0.5)).a;
+    offset = circleRadius + maxOffset * (2.0 * offset - 1.0);
 
-    float offset = texture2D(uTimeData, vec2(a, 0.5)).a;
-    offset = radius + maxVar * (2.0 * offset - 1.0);
-
-    float t = getLineIntensity(0.5 + (l - offset) / thickness);
-    return vec4(color * t, t);
+    return getLineIntensity(0.5 + (radialCoords.x - offset) / lineThickness);
 }
 
 void main()
 {
-    gl_FragColor = drawCircle(vec3(0.8, 0.8, 0.2), 0.05, 0.85, 0.2);
+    vec2 radialCoords = vec2(length(planeCoords), 0.5 * (1.0 + atan(planeCoords.y, planeCoords.x) / PI));
+
+    float circle = getCircleIntensity(radialCoords, 0.05, 0.85, 0.2);
+    float disc = texture2D(uFreqData, vec2(0.05 + radialCoords.x * 0.4, 0.5)).a;
+
+    gl_FragColor = vec4(0.85, 0.95, 0.5, disc + circle);
 }
