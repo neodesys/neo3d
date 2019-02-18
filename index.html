@@ -22,11 +22,99 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Neo3D Samples</title>
-    <script type="text/javascript" src="neo3d-fdeb8f23b3475280cb0a.min.js"></script><script type="text/javascript" src="samples-fdeb8f23b3475280cb0a.min.js"></script></head>
+        <style>
+            body {
+                background: #F0F0F0;
+                margin: 10px;
+            }
+
+            header,
+            footer {
+                clear: both;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+                border-bottom: solid #A5A5A5 1px;
+            }
+
+            input {
+                cursor: pointer;
+            }
+
+            #samplesRoot>article {
+                float: left;
+                padding: 0 15px 15px 15px;
+            }
+
+            #samplesRoot>article>div.content {
+                position: relative;
+            }
+
+            #samplesRoot>article>div.content>canvas {
+                width: 100%;
+                max-width: 640px;
+                max-height: 360px;
+                border-radius: 10px;
+                box-shadow: 5px 5px 20px 0 #707070;
+            }
+
+            #samplesRoot>article>div.content>canvas.hd {
+                max-width: 1920px;
+                max-height: 1080px;
+            }
+
+            #samplesRoot>article.closed {
+                clear: left;
+                padding-bottom: 0;
+            }
+
+            #samplesRoot>article.closed+article {
+                clear: left;
+            }
+
+            #samplesRoot>article.closed>div.content {
+                display: none;
+            }
+
+            #samplesRoot>article>h2 {
+                margin: 0 0 10px 0;
+            }
+
+            a.toggle,
+            a.toggle:active,
+            a.toggle:hover,
+            a.toggle:visited {
+                text-decoration: none;
+                color: #202020;
+            }
+
+            #samplesRoot>article a.toggle::before {
+                content: "\25BE";
+                padding-right: 10px;
+            }
+
+            #samplesRoot>article.closed a.toggle::before {
+                content: "\25B8";
+                padding-right: 10px;
+            }
+
+            #samplesRoot>article.failed a.toggle::before {
+                content: "\2298";
+                padding-right: 2px;
+                color: #E42525;
+                position: relative;
+                left: -4px;
+            }
+
+        </style>
+    <script type="text/javascript" src="neo3d-21ebb718a7d0cc1e02c8.min.js"></script><script type="text/javascript" src="samples-21ebb718a7d0cc1e02c8.min.js"></script></head>
     <body>
-        <hr>
-        <h1>Disfract</h1>
-        <canvas id="disfractDrawSurf" width="640" height="480"></canvas>
-        <hr>
+        <header>
+            <h1>Neo3D Samples</h1>
+            Global rendering:
+            <input type="button" id="switchDrawingButton">
+            <span id="fpsSpan"></span>
+        </header>
+        <section id="samplesRoot"></section>
+        <footer></footer>
     </body>
 </html>
