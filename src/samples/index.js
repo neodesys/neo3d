@@ -155,6 +155,7 @@ window.addEventListener("load", function()
         {
             drawSurf.width = 1920;
             drawSurf.height = 1080;
+            drawSurf.className = "hd";
         }
         else
         {
@@ -162,9 +163,13 @@ window.addEventListener("load", function()
             drawSurf.height = 360;
         }
 
+        var content = document.createElement("div");
+        content.className = "content";
+        content.appendChild(drawSurf);
+
         var article = document.createElement("article");
         article.appendChild(header);
-        article.appendChild(drawSurf);
+        article.appendChild(content);
 
         samplesRoot.appendChild(article);
         sample.main(drawSurf);

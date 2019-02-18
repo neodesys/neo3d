@@ -122,9 +122,9 @@ module.exports = {
         _playButton = document.createElement("a");
         _playButton.href = "#";
         _playButton.innerText = "PLAY";
-        _playButton.style = "position: relative;" +
-            "bottom: 1.3em;" +
-            "right: 4em;" +
+        _playButton.style = "position: absolute;" +
+            "top: 6px;" +
+            "right: 6px;" +
             "color: #d6ef7d;" +
             "border: #d6ef7d solid 2px;" +
             "padding: 0.3em;" +
