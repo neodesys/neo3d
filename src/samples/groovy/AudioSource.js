@@ -61,10 +61,21 @@ var AudioSource = module.exports = function(url)
 
 AudioSource.prototype.play = function()
 {
-    if (this._audioSample)
+    if (!this._audioSample)
     {
-        this._audioSample.play();
+        return window.Promise.reject(new Error("invalid audio sample"));
     }
+
+    if (!_audioCtx || (_audioCtx.state === "running"))
+    {
+        return this._audioSample.play();
+    }
+
+    var that = this;
+    return _audioCtx.resume().then(function()
+    {
+        return that._audioSample.play();
+    });
 };
 
 AudioSource.prototype.pause = function()

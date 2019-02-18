@@ -105,6 +105,8 @@ var _renderer = {
     }
 };
 
+var _playButton = null;
+
 module.exports = {
     open: true,
 
@@ -116,11 +118,39 @@ module.exports = {
     main: function(drawSurf)
     {
         neo3d.createRenderingSurface(drawSurf, _renderer, true);
+
+        _playButton = document.createElement("a");
+        _playButton.href = "#";
+        _playButton.innerText = "PLAY";
+        _playButton.style = "position: relative;" +
+            "bottom: 1.3em;" +
+            "right: 4em;" +
+            "color: #d6ef7d;" +
+            "border: #d6ef7d solid 2px;" +
+            "padding: 0.3em;" +
+            "text-decoration: none;" +
+            "background: #3b3c2a;" +
+            "border-radius: 0.5em;";
+        drawSurf.parentNode.appendChild(_playButton);
+
+        var that = this;
+        _playButton.addEventListener("click", function(e)
+        {
+            e.preventDefault();
+            that.onStart();
+        });
     },
 
     onStart: function()
     {
-        _audioSample.play();
+        _audioSample.play().then(function()
+        {
+            _playButton.style.display = "none";
+
+        }, function()
+        {
+            _playButton.style.display = "block";
+        });
     },
 
     onStop: function()

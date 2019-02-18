@@ -81,6 +81,8 @@ var _renderer = {
 };
 
 module.exports = {
+    open: true,
+
     getName: function()
     {
         return "Disfract";

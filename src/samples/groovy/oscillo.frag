@@ -37,7 +37,10 @@ float getLineIntensity(float t)
 //radialCoords angle (y) must be normalized between 0.0 and 1.0
 float getCircleIntensity(vec2 radialCoords, float lineThickness, float circleRadius, float maxOffset)
 {
-    float offset = texture2D(uTimeData, vec2(radialCoords.y, 0.5)).a;
+    float f = step(0.5, radialCoords.y);
+    f = 2.0 * (f + radialCoords.y) - 4.0 * f * radialCoords.y;
+
+    float offset = texture2D(uTimeData, vec2(f, 0.5)).a;
     offset = circleRadius + maxOffset * (2.0 * offset - 1.0);
 
     return getLineIntensity(0.5 + (radialCoords.x - offset) / lineThickness);
@@ -45,7 +48,7 @@ float getCircleIntensity(vec2 radialCoords, float lineThickness, float circleRad
 
 void main()
 {
-    vec2 radialCoords = vec2(length(planeCoords), 0.5 * (1.0 + atan(planeCoords.y, planeCoords.x) / PI));
+    vec2 radialCoords = vec2(length(planeCoords), 0.5 * (1.0 + atan(-planeCoords.x, planeCoords.y) / PI));
 
     float circle = getCircleIntensity(radialCoords, 0.05, 0.85, 0.2);
     float disc = texture2D(uFreqData, vec2(0.05 + radialCoords.x * 0.4, 0.5)).a;
