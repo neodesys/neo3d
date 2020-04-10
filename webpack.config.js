@@ -29,6 +29,7 @@ const webpackConfig = module.exports = {
 
     entry: {
         neo3d: "./src/neo3d",
+        neoengine: "./src/neoengine",
         samples: "./src/samples"
     },
 
@@ -37,7 +38,8 @@ const webpackConfig = module.exports = {
     },
 
     externals: {
-        neo3d: "window.neo3d"
+        neo3d: "window.neo3d",
+        neoengine: "window.neoengine"
     },
 
     mode: isDevServer ? "development" : "production",
