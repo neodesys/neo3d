@@ -19,7 +19,6 @@
 
 "use strict";
 
-const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -34,8 +33,7 @@ const webpackConfig = module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, "dist"),
-        filename: "[name]-[hash].min.js"
+        filename: "[name]-[contenthash].min.js"
     },
 
     externals: {
