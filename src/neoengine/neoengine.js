@@ -19,31 +19,91 @@
 
 "use strict";
 
+var Entity = require("./Entity");
+
+//Systems will be initialized and updated in the same order as the
+//one defined here for classes importation
+var _systemsClasses = [
+    require("./world/WorldSystem"),
+    require("./rendering/RenderingSystem")
+];
+
 var neoengine = module.exports = {};
+
+var _systems = [];
+var _rootEntity = null;
 
 neoengine.init = function()
 {
-    //TODO
+    if (_rootEntity)
+    {
+        return true;
+    }
+
+    var nbSystems = _systemsClasses.length;
+    for (var i = 0; i < nbSystems; ++i)
+    {
+        var system = new _systemsClasses[i]();
+        if (!system.init())
+        {
+            window.console.error("cannot initialize " + _systemsClasses[i].constructor.name);
+            for (var j = i - 1; j >= 0; --j)
+            {
+                _systems[j].shut();
+            }
+
+            _systems = [];
+            return false;
+        }
+
+        _systems.append(system);
+    }
+
+    _rootEntity = new Entity(null);
+    return true;
 };
 
 neoengine.shut = function()
 {
-    //TODO
+    if (_rootEntity)
+    {
+        _rootEntity.destroy();
+
+        var nbSystems = _systems.length;
+        for (var i = nbSystems - 1; i >= 0; --i)
+        {
+            _systems[i].shut();
+        }
+
+        _systems = [];
+        _rootEntity = null;
+    }
 };
 
 neoengine.createEntity = function(parentEntity)
 {
-    //TODO
+    if ((parentEntity === undefined) || (parentEntity === null))
+    {
+        parentEntity = _rootEntity;
+    }
+
+    if (parentEntity instanceof Entity)
+    {
+        return new Entity(parentEntity);
+    }
+
     return null;
 };
 
 neoengine.destroyEntity = function(entity)
 {
-    //TODO
+    if (entity instanceof Entity)
+    {
+        entity.destroy();
+    }
 };
 
 neoengine.getRootEntity = function()
 {
-    //TODO
-    return null;
+    return _rootEntity;
 };

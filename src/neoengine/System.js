@@ -27,6 +27,7 @@ var System = module.exports = function()
 System.prototype.init = function()
 {
     //TODO
+    return false;
 };
 
 System.prototype.shut = function()

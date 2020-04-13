@@ -21,7 +21,12 @@
 
 var Component = module.exports = function()
 {
-    //TODO
+    this._type = "";
+};
+
+Component.prototype.getComponentType = function()
+{
+    return this._type;
 };
 
 Component.prototype.serialize = function()

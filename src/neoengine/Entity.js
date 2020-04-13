@@ -19,15 +19,38 @@
 
 "use strict";
 
-var Entity = module.exports = function()
+var Entity = module.exports = function(parentEntity)
 {
     //TODO
 };
 
-Entity.prototype.addComponent = function()
+Entity.prototype.addComponent = function(type)
 {
     //TODO
     return null;
+};
+
+Entity.prototype.getComponent = function(type)
+{
+    //TODO
+    return null;
+};
+
+Entity.prototype.getComponents = function(type)
+{
+    //TODO
+    return [];
+};
+
+Entity.prototype.removeComponent = function(component)
+{
+    //TODO
+    return false;
+};
+
+Entity.prototype.destroy = function()
+{
+    //TODO
 };
 
 Entity.prototype.serialize = function()
